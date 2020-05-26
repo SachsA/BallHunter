@@ -13,7 +13,15 @@
 ##### When you hit an object, it'll fall into the water placed below, few seconds later it will fall at the bottom.
 ##### A score is displayed at the top left corner.
 
-##### Physics: gravity, forces, acceleration, buoyancy, collisions, constraints, spring, objects connection, mouse picking...
+### Features of the game:
+ - Acceleration
+ - Gravity
+ - Constraints
+ - Collisions
+ - Buoyancy
+ - Spring
+ - Objects connection
+ - Mouse picking
 
 ### Usage
 How to use the project ?

@@ -24,7 +24,7 @@
 class Mover
 {
 public:
-	Mover(int size, int definition,
+	Mover(float size, int definition,
 		float m_mass, float m_damping,
 		cyclone::Vector3 position, cyclone::Vector3 velocity,
 		cyclone::Vector3 acceleration,
@@ -40,9 +40,9 @@ public:
 	void setParticleBuoyancy(cyclone::real maxDepth, cyclone::real volume, cyclone::real waterHeight, cyclone::real liquidDensity);
 
 	int m_run;
-	int m_size;
 	int m_definition;
 
+	float m_size;
 	float m_mass;
 	float m_damping;
 

@@ -7,7 +7,7 @@ using namespace cyclone;
 void MyGroundContact::init(cyclone::Particle *p, double size)
 {
 	if (p)
-		particles.push_back(p);
+		particles.emplace_back(p);
 	this->size = size;
 }
 

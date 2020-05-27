@@ -79,11 +79,12 @@ int main()
 	Fl::scheme("plastic"); // plastic
 	int width = 800;
 	int height = 800;
-	Fl_Double_Window* wind = new Fl_Double_Window(100, 100, width, height, "Ball Hunter By SACHS_A");
+	
+	Fl_Double_Window* wind = new Fl_Double_Window(100, 100, width, height, "Ball Hunter by SACHS_A");
 
 	wind->begin(); // put widgets inside of the window
 
-	widgets = new Fl_Group(0, 0, 800, 800);
+	widgets = new Fl_Group(0, 0, width, height);
 	widgets->begin();
 
 	MyGlWindow* gl = new MyGlWindow(10, 10, width - 20, height - 50);

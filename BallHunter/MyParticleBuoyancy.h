@@ -22,12 +22,12 @@ namespace cyclone {
 	{
 	public:
 		MyParticleBuoyancy() = default;
-		MyParticleBuoyancy::MyParticleBuoyancy(int m_size, float mass, real maxDepth, real volume, real waterHeight, real liquidDensity);
+		MyParticleBuoyancy::MyParticleBuoyancy(float m_size, float mass, real maxDepth, real volume, real waterHeight, real liquidDensity);
 		~MyParticleBuoyancy() = default;
 		
 		void updateForce(Particle *particle, real duration);
 
-		int m_size;
+		float m_size;
 		float m_mass;
 		real maxDepth;
 		real volume;

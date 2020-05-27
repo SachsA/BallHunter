@@ -2,7 +2,7 @@
 
 using namespace cyclone;
 
-MyParticleBuoyancy::MyParticleBuoyancy(int size, float mass, real maxDepth, real volume, real waterHeight, real liquidDensity)
+MyParticleBuoyancy::MyParticleBuoyancy(float size, float mass, real maxDepth, real volume, real waterHeight, real liquidDensity)
 	:
 	m_size(size), m_mass(mass), maxDepth(maxDepth), volume(volume),
 	waterHeight(waterHeight), liquidDensity(liquidDensity)

@@ -14,7 +14,9 @@
 
 #include "Vec3f.h"
 #include "Viewer.h"
+
 #include <vector>
+#include <pworld.h>
 
 #include "core.h"
 
@@ -32,23 +34,22 @@ class MyGlWindow : public Fl_Gl_Window {
 		int windBlowing;
 		Fl_Slider* time;
 
+		float size;
+
+		cyclone::Vector3 previousPoint;
+
+		std::vector<cyclone::ParticleRod *> rods;
+		std::vector<cyclone::ParticleCable *> cables;
+		std::vector<cyclone::ParticleCableConstraint *> supports;
+
 		//If you want to attach movers between each other => set to true
 		bool moversBetweenMovers = false;
 		//If you want to attach movers to the anchor => set to true
-		bool moversToAnchor = true;
+		bool moversToAnchor = false;
 		//If you want to have water and buoyancy => set to true
-		bool buoyancy = true;
+		bool buoyancy = false;
 
-		//Maximum #of collisions possible
-		unsigned maxPossibleContact = 3;
-
-		cyclone::ParticleContact  m_contact[3];
-
-		//Container for MyGroundContact
-		std::vector<cyclone::ParticleContactGenerator*> m_contactGenerators;
-
-		//Collision resolver(calculate impulse and change velocity and positions)
-		cyclone::ParticleContactResolver *m_resolver;
+		cyclone::ParticleWorld *m_world;
 
 		void initObjects();
 		
@@ -63,6 +64,7 @@ class MyGlWindow : public Fl_Gl_Window {
 	private:
 		void draw();
 		void drawWaterTank();
+		void drawBridge(int shadow);
 		
 		int handle(int);
 		

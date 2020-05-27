@@ -42,7 +42,6 @@ public:
 	void draw(int shadow);
 	void drawConnection();
 	void drawSpringWithAnchor();
-	void drawWaterTank();
 	void drawStick();
 
 	bool m_isConnectionToMovers;

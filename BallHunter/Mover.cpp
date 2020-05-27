@@ -1,6 +1,6 @@
 #include "Mover.h"
 
-Mover::Mover(int size, int definition,
+Mover::Mover(float size, int definition,
 	float mass, float damping,
 	cyclone::Vector3 position, cyclone::Vector3 velocity,
 	cyclone::Vector3 acceleration,

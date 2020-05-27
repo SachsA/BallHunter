@@ -73,6 +73,8 @@ void MoverConnection::windBlow()
 void MoverConnection::draw(int shadow)
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
+		if (!shadow)
+			glLoadName(i + 1);
 		m_movers[i]->draw(shadow);
 	}
 
@@ -128,7 +130,7 @@ void MoverConnection::drawStick()
 	glBegin(GL_LINES);
 
 	glVertex3f(5, 0, 5); //Starting point
-	glVertex3f(5, 20, 5);  //Ending point
+	glVertex3f(5, 15, 5);  //Ending point
 	glEnd();
 	glPopMatrix();
 }

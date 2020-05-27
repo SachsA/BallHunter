@@ -1,12 +1,12 @@
-#include "MoverConnection.h"
+#include "MoversContainer.h"
 
-MoverConnection::MoverConnection(cyclone::Vector3 gravity)
+MoversContainer::MoversContainer(cyclone::Vector3 gravity)
 {
 	m_gravity = new cyclone::ParticleGravity(gravity);
 	m_forces = new cyclone::ParticleForceRegistry();
 }
 
-MoverConnection::MoverConnection(cyclone::Vector3 gravity, bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy)
+MoversContainer::MoversContainer(cyclone::Vector3 gravity, bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy)
 {
 	m_gravity = new cyclone::ParticleGravity(gravity);
 	m_forces = new cyclone::ParticleForceRegistry();
@@ -16,22 +16,22 @@ MoverConnection::MoverConnection(cyclone::Vector3 gravity, bool isConnectionToMo
 	setIsBuoyancy(isBuoyancy);
 }
 
-void MoverConnection::setIsConnectionToMovers(bool isConnectionToMovers)
+void MoversContainer::setIsConnectionToMovers(bool isConnectionToMovers)
 {
 	m_isConnectionToMovers = isConnectionToMovers;
 }
 
-void MoverConnection::setIsConnectionToAnchor(bool isConnectionToAnchor)
+void MoversContainer::setIsConnectionToAnchor(bool isConnectionToAnchor)
 {
 	m_isConnectionToAnchor = isConnectionToAnchor;
 }
 
-void MoverConnection::setIsBuoyancy(bool isBuoyancy)
+void MoversContainer::setIsBuoyancy(bool isBuoyancy)
 {
 	m_isBuoyancy = isBuoyancy;
 }
 
-void MoverConnection::initForces()
+void MoversContainer::initForces()
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
 		m_forces->add(m_movers[i]->m_particle, m_gravity);
@@ -41,7 +41,7 @@ void MoverConnection::initForces()
 	}
 }
 
-void MoverConnection::initForcesAnchored()
+void MoversContainer::initForcesAnchored()
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
 		m_forces->add(m_movers[i]->m_particle, m_gravity);
@@ -49,28 +49,28 @@ void MoverConnection::initForcesAnchored()
 	}
 }
 
-void MoverConnection::update(float duration)
+void MoversContainer::update(float duration)
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
 		m_movers[i]->update(duration, m_isConnectionToMovers, m_isConnectionToAnchor, m_isBuoyancy);
 	}
 }
 
-void MoverConnection::reset()
+void MoversContainer::reset()
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
 		m_movers[i]->reset();
 	}
 }
 
-void MoverConnection::windBlow()
+void MoversContainer::windBlow()
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
 		m_movers[i]->windBlow();
 	}
 }
 
-void MoverConnection::draw(int shadow)
+void MoversContainer::draw(int shadow)
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
 		if (!shadow)
@@ -87,7 +87,7 @@ void MoverConnection::draw(int shadow)
 		drawSpringWithAnchor();
 }
 
-void MoverConnection::drawConnection()
+void MoversContainer::drawConnection()
 {
 	glColor3f(0, 0, 0);
 	glBegin(GL_LINE_STRIP);
@@ -100,7 +100,7 @@ void MoverConnection::drawConnection()
 	glEnd();
 }
 
-void MoverConnection::drawSpringWithAnchor()
+void MoversContainer::drawSpringWithAnchor()
 {
 	drawStick();
 
@@ -121,7 +121,7 @@ void MoverConnection::drawSpringWithAnchor()
 	}
 }
 
-void MoverConnection::drawStick()
+void MoversContainer::drawStick()
 {
 	glColor3f(1, 0, 1);  //Line color
 	glLineWidth(3.0f);  //Line Width

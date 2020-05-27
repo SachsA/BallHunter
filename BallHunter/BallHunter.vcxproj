@@ -118,7 +118,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MMatrix.cpp" />
     <ClCompile Include="Mover.cpp" />
-    <ClCompile Include="MoverConnection.cpp" />
+    <ClCompile Include="MoversContainer.cpp" />
     <ClCompile Include="MyAnchoredSpring.cpp" />
     <ClCompile Include="MyGlWindow.cpp" />
     <ClCompile Include="MyGroundContact.cpp" />
@@ -151,7 +151,7 @@
     <ClInclude Include="DrawUtils.H" />
     <ClInclude Include="MMatrix.H" />
     <ClInclude Include="Mover.h" />
-    <ClInclude Include="MoverConnection.h" />
+    <ClInclude Include="MoversContainer.h" />
     <ClInclude Include="MyAnchoredSpring.h" />
     <ClInclude Include="MyGlWindow.h" />
     <ClInclude Include="MyGroundContact.h" />

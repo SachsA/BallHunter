@@ -20,7 +20,7 @@
 
 #include "core.h"
 
-#include "MoverConnection.h"
+#include "MoversContainer.h"
 #include "MyGroundContact.h"
 
 class MyGlWindow : public Fl_Gl_Window {
@@ -54,7 +54,7 @@ class MyGlWindow : public Fl_Gl_Window {
 		void initObjects();
 		
 		void update();
-		void drawStuff();
+		void drawWall();
 		void doPick();
 		void reset();
 
@@ -75,6 +75,6 @@ class MyGlWindow : public Fl_Gl_Window {
 		float fieldOfView;
 		Viewer *m_viewer;
 		
-		MoverConnection *m_connection;
+		MoversContainer *m_container;
 };
 

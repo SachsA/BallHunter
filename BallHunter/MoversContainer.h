@@ -19,12 +19,12 @@
 
 #include "Mover.h"
 
-class MoverConnection
+class MoversContainer
 {
 public:
-	MoverConnection(cyclone::Vector3 gravity);
-	MoverConnection(cyclone::Vector3 gravity, bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy);
-	~MoverConnection() = default;
+	MoversContainer(cyclone::Vector3 gravity);
+	MoversContainer(cyclone::Vector3 gravity, bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy);
+	~MoversContainer() = default;
 	
 	void setIsConnectionToMovers(bool isConnectionToMovers);
 	void setIsConnectionToAnchor(bool isConnectionToAnchor);

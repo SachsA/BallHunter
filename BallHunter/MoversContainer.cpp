@@ -1,14 +1,7 @@
 #include "MoversContainer.h"
 
-MoversContainer::MoversContainer(cyclone::Vector3 gravity)
+MoversContainer::MoversContainer(bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy)
 {
-	m_gravity = new cyclone::ParticleGravity(gravity);
-	m_forces = new cyclone::ParticleForceRegistry();
-}
-
-MoversContainer::MoversContainer(cyclone::Vector3 gravity, bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy)
-{
-	m_gravity = new cyclone::ParticleGravity(gravity);
 	m_forces = new cyclone::ParticleForceRegistry();
 
 	setIsConnectionToMovers(isConnectionToMovers);
@@ -34,7 +27,6 @@ void MoversContainer::setIsBuoyancy(bool isBuoyancy)
 void MoversContainer::initForces()
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
-		m_forces->add(m_movers[i]->m_particle, m_gravity);
 		for (unsigned int j = 0; j < m_movers[i]->m_spring.size(); j++) {
 			m_forces->add(m_movers[i]->m_particle, m_movers[i]->m_spring[j]);
 		}
@@ -44,7 +36,6 @@ void MoversContainer::initForces()
 void MoversContainer::initForcesAnchored()
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {
-		m_forces->add(m_movers[i]->m_particle, m_gravity);
 		m_forces->add(m_movers[i]->m_particle, m_movers[i]->m_anchored);
 	}
 }

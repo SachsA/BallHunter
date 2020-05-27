@@ -38,6 +38,8 @@ class MyGlWindow : public Fl_Gl_Window {
 
 		cyclone::Vector3 previousPoint;
 
+		cyclone::MyGroundContact *groundContact;
+
 		std::vector<cyclone::ParticleRod *> rods;
 		std::vector<cyclone::ParticleCable *> cables;
 		std::vector<cyclone::ParticleCableConstraint *> supports;
@@ -51,12 +53,18 @@ class MyGlWindow : public Fl_Gl_Window {
 
 		cyclone::ParticleWorld *m_world;
 
-		void initObjects();
+		void createMovers();
 		
 		void update();
 		void drawWall();
 		void doPick();
 		void reset();
+
+		void setupGround();
+		void setupCables();
+		void setupRods();
+		void setupCableConstraints();
+		void setupCollisions();
 
 		void attachMultipleMovers();
 		void attachMoversToAnchor(cyclone::Vector3 *anchor);

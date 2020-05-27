@@ -1,17 +1,27 @@
-#include "MyGlWindow.h"
-
 #include <iostream>
+
+#include "MyGlWindow.h"
 #include "drawUtils.h"
 #include "timing.h"
 #include "ParticleCollision.h"
 
+//==================== Camera constants ====================//
 static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
+//==================== Mouse constants ====================//
+static int last_push;
+int m_pressedMouseButton;
+int m_lastMouseX;
+int m_lastMouseY;
+
+
+//==================== Construction methods ====================//
+
+
 MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	Fl_Gl_Window(x, y, w, h)
-	//==========================================================================
 {
 	mode(FL_RGB | FL_ALPHA | FL_DOUBLE | FL_STENCIL);
 
@@ -28,10 +38,16 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	run = 0;
 
 	//Initialize movers and values of these displayed objects
-	initObjects();
+	createMovers();
+
+	setupGround();
+	setupCollisions();
+	setupCables();
+	setupRods();
+	setupCableConstraints();
 }
 
-void MyGlWindow::initObjects()
+void MyGlWindow::createMovers()
 {
 	size = 0.5;
 	int definition = 30;
@@ -48,9 +64,9 @@ void MyGlWindow::initObjects()
 
 	m_world = new cyclone::ParticleWorld(120);
 
-	cyclone::MyGroundContact *groundContact = new cyclone::MyGroundContact();
+	groundContact = new cyclone::MyGroundContact();
 
-	m_container = new MoversContainer(cyclone::Vector3::GRAVITY, moversBetweenMovers, moversToAnchor, buoyancy);
+	m_container = new MoversContainer(moversBetweenMovers, moversToAnchor, buoyancy);
 
 	int x = -10;
 	int z = 1;
@@ -60,117 +76,23 @@ void MyGlWindow::initObjects()
 		position = cyclone::Vector3(x, 8, z);
 		m_container->m_movers.emplace_back(new Mover(size, definition, mass, damping, position, velocity, acceleration, shadow_color, obj_color));
 
-		groundContact->init(m_container->m_movers[i]->m_particle, size);
 		m_world->getParticles().emplace_back(m_container->m_movers[i]->m_particle);
 		m_world->getForceRegistry().add(m_container->m_movers[i]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
 
 		//Increment x to next place
-		if (z == -1) {
+		if (z == -1)
 			x += 3;
-		}
 		
 		z *= -1;
 	}
-
-	m_world->getContactGenerators().emplace_back(groundContact);
-
-	int j = 0;
-
-	for (size_t i = 0; i < 5; i++)
-	{
-		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
-		cables.emplace_back(cable);
-		
-		cable->particle[0] = m_container->m_movers[j]->m_particle;
-		cable->particle[1] = m_container->m_movers[j + 2]->m_particle;
-		cable->maxLength = 3.0f;
-		cable->restitution = 0.1f;
-
-		m_world->getContactGenerators().emplace_back(cable);
-
-		j += 2;
-	}
-
-	j = 1;
-
-	for (size_t i = 5; i < 10; i++)
-	{
-		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
-		cables.emplace_back(cable);
-
-		cable->particle[0] = m_container->m_movers[j]->m_particle;
-		cable->particle[1] = m_container->m_movers[j + 2]->m_particle;
-		cable->maxLength = 3.0f;
-		cable->restitution = 0.1f;
-
-		m_world->getContactGenerators().emplace_back(cable);
-
-		j += 2;
-	}
-
-	j = 0;
-
-	for (size_t i = 0; i < 6; i++)
-	{
-		cyclone::ParticleRod *rod = new cyclone::ParticleRod();
-		rods.emplace_back(rod);
-
-		rod->particle[0] = m_container->m_movers[j]->m_particle;
-		rod->particle[1] = m_container->m_movers[j + 1]->m_particle;
-		rod->length = 2.0f;
-
-		m_world->getContactGenerators().emplace_back(rod);
-
-		j += 2;
-	}
-
-
-	for (size_t i = 0; i < 12; i++)
-	{
-		cyclone::ParticleCableConstraint *support = new cyclone::ParticleCableConstraint();
-		supports.emplace_back(support);
-		
-		support->particle = m_container->m_movers[i]->m_particle;
-
-		position = m_container->m_movers[i]->m_particle->getPosition();
-		position.y = 10;
-		support->anchor = position;
-
-		support->restitution = 0.5f;
-
-		if (i == 0 || i == 1 || i == 10 || i == 11) {
-			support->maxLength = 3;
-		}
-		else if (i == 2 || i == 3 || i == 8 || i == 9) {
-			support->maxLength = 3.5;
-		}
-		else if (i == 4 || i == 5 || i == 6 || i == 7) {
-			support->maxLength = 4;
-		}
-
-		m_world->getContactGenerators().emplace_back(support);
-	}
-
-	for (size_t first = 0; first < m_container->m_movers.size(); first++)
-	{
-		for (size_t second = 0; second < m_container->m_movers.size(); second++) {
-			if (first == second)
-				continue;
-
-			cyclone::ParticleCollision *particleCollision = new cyclone::ParticleCollision(size);
-			particleCollision->size = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
-
-			particleCollision->particle[0] = m_container->m_movers[first]->m_particle;
-			particleCollision->particle[1] = m_container->m_movers[second]->m_particle;
-
-			m_world->getContactGenerators().emplace_back(particleCollision);
-		}
-	}
 }
+
+
+//==================== Setup methods ====================//
+
 
 void MyGlWindow::setupLight(float x, float y, float z)
 {
-	// set up the lighting
 	GLfloat lightPosition[] = { 500, 900.0, 500, 1.0 };
 	GLfloat lightPosition2[] = { 1, 0, 0, 0 };
 	GLfloat lightPosition3[] = { 0, -1, 0, 0 };
@@ -208,74 +130,150 @@ void MyGlWindow::setupLight(float x, float y, float z)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void MyGlWindow::drawWall()
+void MyGlWindow::setupGround()
 {
-	polygonf(4, 20., 0., -25., 20., 0., 25., 20., 30., 25., 20., 30., -25.);
+	for (size_t i = 0; i < 12; i++)
+	{
+		groundContact->init(m_container->m_movers[i]->m_particle, size);
+	}
+
+	m_world->getContactGenerators().emplace_back(groundContact);
 }
 
-//==========================================================================
-void MyGlWindow::draw()
-//==========================================================================
+void MyGlWindow::setupCables()
 {
-	glViewport(0, 0, w(), h());
+	int j = 0;
 
-	// clear the window, be sure to clear the Z-Buffer too
-	glClearColor(0.2, 0.2, 0.2, 1);		// background should be blue
+	for (size_t i = 0; i < 5; i++)
+	{
+		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
+		cables.emplace_back(cable);
 
-	glClearStencil(0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_DEPTH);
+		cable->particle[0] = m_container->m_movers[j]->m_particle;
+		cable->particle[1] = m_container->m_movers[j + 2]->m_particle;
+		cable->maxLength = 3.0f;
+		cable->restitution = 0.1f;
 
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+		m_world->getContactGenerators().emplace_back(cable);
 
-	// now draw the ground plane
-	setProjection();
-	setupFloor();
+		j += 2;
+	}
 
-	glPushMatrix();
-	drawFloor(200, 20);
-	glPopMatrix();
+	j = 1;
 
-	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
+	for (size_t i = 5; i < 10; i++)
+	{
+		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
+		cables.emplace_back(cable);
 
-	// Add a sphere to the scene.
-   //Draw axises
-	glLineWidth(3.0f);
-	glBegin(GL_LINES);
-	glColor3f(1, 0, 0);
+		cable->particle[0] = m_container->m_movers[j]->m_particle;
+		cable->particle[1] = m_container->m_movers[j + 2]->m_particle;
+		cable->maxLength = 3.0f;
+		cable->restitution = 0.1f;
 
-	glVertex3f(0, 0.1, 0);
-	glVertex3f(0, 100, 0);
+		m_world->getContactGenerators().emplace_back(cable);
 
-	glColor3f(0, 1, 0);
-
-	glVertex3f(0, 0.1, 0);
-	glVertex3f(100, 0.1, 0);
-
-	glColor3f(0, 0, 1);
-
-	glVertex3f(0, 0.1, 0);
-	glVertex3f(0, 0.1, 100);
-	glEnd();
-	glLineWidth(1.0f);
-
-	//draw shadow
-	setupShadows();
-	drawBridge(1);
-	unsetupShadows();
-
-	glEnable(GL_LIGHTING);
-
-	//draw objects
-	glPushMatrix();
-	drawBridge(0);
-	glPopMatrix();
-
-	glEnable(GL_COLOR_MATERIAL);
-
-	if (buoyancy)
-		drawWaterTank();
+		j += 2;
+	}
 }
+
+void MyGlWindow::setupCollisions()
+{
+	for (size_t first = 0; first < m_container->m_movers.size(); first++)
+	{
+		for (size_t second = 0; second < m_container->m_movers.size(); second++) {
+			if (first == second)
+				continue;
+
+			cyclone::ParticleCollision *particleCollision = new cyclone::ParticleCollision(size);
+			particleCollision->size = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
+
+			particleCollision->particle[0] = m_container->m_movers[first]->m_particle;
+			particleCollision->particle[1] = m_container->m_movers[second]->m_particle;
+
+			m_world->getContactGenerators().emplace_back(particleCollision);
+		}
+	}
+}
+
+void MyGlWindow::setupRods()
+{
+	int j = 0;
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		cyclone::ParticleRod *rod = new cyclone::ParticleRod();
+		rods.emplace_back(rod);
+
+		rod->particle[0] = m_container->m_movers[j]->m_particle;
+		rod->particle[1] = m_container->m_movers[j + 1]->m_particle;
+		rod->length = 2.0f;
+
+		m_world->getContactGenerators().emplace_back(rod);
+
+		j += 2;
+	}
+}
+
+void MyGlWindow::setupCableConstraints()
+{
+	cyclone::Vector3 position;
+
+	for (size_t i = 0; i < 12; i++)
+	{
+		cyclone::ParticleCableConstraint *support = new cyclone::ParticleCableConstraint();
+		supports.emplace_back(support);
+
+		support->particle = m_container->m_movers[i]->m_particle;
+
+		position = m_container->m_movers[i]->m_particle->getPosition();
+		position.y = 10;
+		support->anchor = position;
+
+		support->restitution = 0.5f;
+
+		if (i == 0 || i == 1 || i == 10 || i == 11) {
+			support->maxLength = 3;
+		}
+		else if (i == 2 || i == 3 || i == 8 || i == 9) {
+			support->maxLength = 3.5;
+		}
+		else if (i == 4 || i == 5 || i == 6 || i == 7) {
+			support->maxLength = 4;
+		}
+
+		m_world->getContactGenerators().emplace_back(support);
+	}
+}
+
+
+//==================== Core methods ====================//
+
+
+void MyGlWindow::reset()
+{
+	m_container->reset();
+}
+
+void MyGlWindow::update()
+{
+	TimingData::get().update();
+
+	if (!run) return;
+
+	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
+
+	if (duration <= 0.0f) return;
+
+	if (windBlowing == 1)
+		m_container->windBlow();
+
+	m_world->runPhysics(duration);
+}
+
+
+//==================== Movers methods ====================//
+
 
 void MyGlWindow::attachMultipleMovers()
 {
@@ -305,204 +303,13 @@ void MyGlWindow::setMoversBuoyancy()
 	}
 }
 
-void MyGlWindow::reset()
+
+//==================== Draw methods ====================//
+
+
+void MyGlWindow::drawWall()
 {
-	m_container->reset();
-}
-
-void MyGlWindow::update()
-{
-	TimingData::get().update();
-
-	if (!run) return;
-
-	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
-
-	if (duration <= 0.0f) return;
-
-	if (windBlowing == 1)
-		m_container->windBlow();
-
-	m_world->runPhysics(duration);
-}
-
-void MyGlWindow::doPick()
-{
-	make_current();		// since we'll need to do some GL stuff
-
-	int mx = Fl::event_x(); // where is the mouse?
-	int my = Fl::event_y();
-
-	// get the viewport - most reliable way to turn mouse coords into GL coords
-	int viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	// set up the pick matrix on the stack - remember, FlTk is
-	// upside down!
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPickMatrix((double)mx, (double)(viewport[3] - my), 5, 5, viewport);
-
-	// now set up the projection
-	setProjection(false);
-
-	// now draw the objects - but really only see what we hit
-	GLuint buf[100];
-	glSelectBuffer(100, buf);
-	glRenderMode(GL_SELECT);
-	glInitNames();
-	glPushName(0);
-
-	m_container->draw(0);
-
-	// go back to drawing mode, and see how picking did
-	int hits = glRenderMode(GL_RENDER);
-	if (hits) {
-		// warning; this just grabs the first object hit - if there
-		// are multiple objects, you really want to pick the closest
-		// one - see the OpenGL manual 
-		// remember: we load names that are one more than the index
-		selected = buf[3] - 1;
-	}
-	else {// nothing hit, nothing selected
-		selected = -1;
-	}
-}
-
-void MyGlWindow::setProjection(int clearProjection)
-//==========================================================================
-{
-	glMatrixMode(GL_PROJECTION);
-	glViewport(0, 0, w(), h());
-	if (clearProjection)
-		glLoadIdentity();
-	// compute the aspect ratio so we don't distort things
-	double aspect = ((double)w()) / ((double)h());
-	gluPerspective(fieldOfView, aspect, 1, 1000);
-
-	// put the camera where we want it to be
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	// use the transformation in the ArcBall
-
-	gluLookAt(
-		m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z,
-		m_viewer->getViewCenter().x, m_viewer->getViewCenter().y, m_viewer->getViewCenter().z,
-		m_viewer->getUpVector().x, m_viewer->getUpVector().y, m_viewer->getUpVector().z
-	);
-
-	glDisable(GL_BLEND);
-}
-
-static int last_push;
-int m_pressedMouseButton;
-int m_lastMouseX;
-int m_lastMouseY;
-
-int MyGlWindow::handle(int e)
-//==========================================================================
-{
-	switch (e) {
-	case FL_SHOW:		// you must handle this, or not be seen!
-		show();
-		return 1;
-	case FL_PUSH:
-	{
-		m_pressedMouseButton = Fl::event_button();
-		m_lastMouseX = Fl::event_x();
-		m_lastMouseY = Fl::event_y();
-
-		if (m_pressedMouseButton == 1) {
-			doPick();
-			damage(1);
-			return 1;
-		};
-		break;
-	}
-	case FL_RELEASE:
-		if (selected >= 0) {
-			selected = -1;
-			previousPoint = cyclone::Vector3(0, 0, 0);
-		}
-		m_pressedMouseButton = -1;
-		damage(1);
-		return 1;
-	case FL_DRAG: // if the user drags the mouse
-	{
-		if (selected >= 0 && m_pressedMouseButton == 1) {
-			double r1x, r1y, r1z, r2x, r2y, r2z;
-			getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
-
-			double rx, ry, rz;
-			mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
-				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().x),
-				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().y),
-				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().z),
-				rx, ry, rz,
-				(Fl::event_state() & FL_CTRL) != 0);
-
-			cyclone::Vector3 v(rx, ry, rz);
-			if (previousPoint.magnitude() > 0) {
-				m_container->m_movers[selected]->m_particle->setVelocity((v - previousPoint) * 40);
-			}
-
-			previousPoint = v;
-
-			damage(1);
-		}
-		else {
-			double fractionChangeX = static_cast<double>(Fl::event_x() - m_lastMouseX) / static_cast<double>(this->w());
-			double fractionChangeY = static_cast<double>(m_lastMouseY - Fl::event_y()) / static_cast<double>(this->h());
-
-			if (m_pressedMouseButton == 1) {
-				m_viewer->rotate(fractionChangeX, fractionChangeY);
-			}
-			else if (m_pressedMouseButton == 2) {
-				m_viewer->zoom(fractionChangeY);
-			}
-			else if (m_pressedMouseButton == 3) {
-				m_viewer->translate(-fractionChangeX, -fractionChangeY, (Fl::event_key(FL_Shift_L) == 0) || (Fl::event_key(FL_Shift_R) == 0));
-			}
-			else {
-				std::cout << "Warning: dragging with unknown mouse button!  Nothing will be done" << std::endl;
-			}
-
-			m_lastMouseX = Fl::event_x();
-			m_lastMouseY = Fl::event_y();
-			redraw();
-
-			damage(1);
-		}
-	}
-
-	return 1;
-
-	case FL_KEYBOARD:
-		return 0;
-
-	default:
-		return 0;
-	}
-}
-
-//
-// get the mouse in NDC
-//==========================================================================
-void MyGlWindow::getMouseNDC(float& x, float& y)
-//==========================================================================
-{
-	// notice, we put everything into doubles so we can do the math
-	float mx = (float)Fl::event_x();	// remeber where the mouse went down
-	float my = (float)Fl::event_y();
-
-	// we will assume that the viewport is the same as the window size
-	float wd = (float)w();
-	float hd = (float)h();
-
-	// remember that FlTk has Y going the wrong way!
-	my = hd - my;
-
-	x = (mx / wd) * 2.0f - 1.f;
-	y = (my / hd) * 2.0f - 1.f;
+	polygonf(4, 20., 0., -25., 20., 0., 25., 20., 30., 25., 20., 30., -25.);
 }
 
 void MyGlWindow::drawWaterTank()
@@ -585,4 +392,238 @@ void MyGlWindow::drawBridge(int shadow)
 	glEnd();
 
 	glLineWidth(1.0);
+}
+
+void MyGlWindow::draw()
+{
+	glViewport(0, 0, w(), h());
+
+	// clear the window, be sure to clear the Z-Buffer too
+	glClearColor(0.2, 0.2, 0.2, 1);		// background should be blue
+
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_DEPTH);
+
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	// now draw the ground plane
+	setProjection();
+	setupFloor();
+
+	glPushMatrix();
+	drawFloor(200, 20);
+	glPopMatrix();
+
+	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
+
+	//Add a sphere to the scene.
+   //Draw axises
+	glLineWidth(3.0f);
+	glBegin(GL_LINES);
+	glColor3f(1, 0, 0);
+
+	glVertex3f(0, 0.1, 0);
+	glVertex3f(0, 100, 0);
+
+	glColor3f(0, 1, 0);
+
+	glVertex3f(0, 0.1, 0);
+	glVertex3f(100, 0.1, 0);
+
+	glColor3f(0, 0, 1);
+
+	glVertex3f(0, 0.1, 0);
+	glVertex3f(0, 0.1, 100);
+	glEnd();
+	glLineWidth(1.0f);
+
+	//draw shadow
+	setupShadows();
+	drawBridge(1);
+	unsetupShadows();
+
+	glEnable(GL_LIGHTING);
+
+	//draw objects
+	glPushMatrix();
+	drawBridge(0);
+	glPopMatrix();
+
+	glEnable(GL_COLOR_MATERIAL);
+
+	if (buoyancy)
+		drawWaterTank();
+}
+
+
+//==================== Mouse handling methods ====================//
+
+
+void MyGlWindow::doPick()
+{
+	make_current();		// since we'll need to do some GL stuff
+
+	int mx = Fl::event_x(); // where is the mouse?
+	int my = Fl::event_y();
+
+	// get the viewport - most reliable way to turn mouse coords into GL coords
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	// set up the pick matrix on the stack - remember, FlTk is
+	// upside down!
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPickMatrix((double)mx, (double)(viewport[3] - my), 5, 5, viewport);
+
+	// now set up the projection
+	setProjection(false);
+
+	// now draw the objects - but really only see what we hit
+	GLuint buf[100];
+	glSelectBuffer(100, buf);
+	glRenderMode(GL_SELECT);
+	glInitNames();
+	glPushName(0);
+
+	m_container->draw(0);
+
+	// go back to drawing mode, and see how picking did
+	int hits = glRenderMode(GL_RENDER);
+	if (hits) {
+		// warning; this just grabs the first object hit - if there
+		// are multiple objects, you really want to pick the closest
+		// one - see the OpenGL manual 
+		// remember: we load names that are one more than the index
+		selected = buf[3] - 1;
+	}
+	else {// nothing hit, nothing selected
+		selected = -1;
+	}
+}
+
+void MyGlWindow::setProjection(int clearProjection)
+{
+	glMatrixMode(GL_PROJECTION);
+	glViewport(0, 0, w(), h());
+	if (clearProjection)
+		glLoadIdentity();
+	// compute the aspect ratio so we don't distort things
+	double aspect = ((double)w()) / ((double)h());
+	gluPerspective(fieldOfView, aspect, 1, 1000);
+
+	// put the camera where we want it to be
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	// use the transformation in the ArcBall
+
+	gluLookAt(
+		m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z,
+		m_viewer->getViewCenter().x, m_viewer->getViewCenter().y, m_viewer->getViewCenter().z,
+		m_viewer->getUpVector().x, m_viewer->getUpVector().y, m_viewer->getUpVector().z
+	);
+
+	glDisable(GL_BLEND);
+}
+
+int MyGlWindow::handle(int e)
+{
+	switch (e) {
+	case FL_SHOW:
+		show();
+		return 1;
+	case FL_PUSH:
+	{
+		m_pressedMouseButton = Fl::event_button();
+		m_lastMouseX = Fl::event_x();
+		m_lastMouseY = Fl::event_y();
+
+		if (m_pressedMouseButton == 1) {
+			doPick();
+			damage(1);
+			return 1;
+		};
+		break;
+	}
+	case FL_RELEASE:
+		if (selected >= 0) {
+			selected = -1;
+			previousPoint = cyclone::Vector3(0, 0, 0);
+		}
+		m_pressedMouseButton = -1;
+		damage(1);
+		return 1;
+	case FL_DRAG:
+	{
+		if (selected >= 0 && m_pressedMouseButton == 1) {
+			double r1x, r1y, r1z, r2x, r2y, r2z;
+			getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
+
+			double rx, ry, rz;
+			mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
+				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().x),
+				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().y),
+				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().z),
+				rx, ry, rz,
+				(Fl::event_state() & FL_CTRL) != 0);
+
+			cyclone::Vector3 v(rx, ry, rz);
+			if (previousPoint.magnitude() > 0) {
+				m_container->m_movers[selected]->m_particle->setVelocity((v - previousPoint) * 40);
+			}
+
+			previousPoint = v;
+
+			damage(1);
+		}
+		else {
+			double fractionChangeX = static_cast<double>(Fl::event_x() - m_lastMouseX) / static_cast<double>(this->w());
+			double fractionChangeY = static_cast<double>(m_lastMouseY - Fl::event_y()) / static_cast<double>(this->h());
+
+			if (m_pressedMouseButton == 1) {
+				m_viewer->rotate(fractionChangeX, fractionChangeY);
+			}
+			else if (m_pressedMouseButton == 2) {
+				m_viewer->zoom(fractionChangeY);
+			}
+			else if (m_pressedMouseButton == 3) {
+				m_viewer->translate(-fractionChangeX, -fractionChangeY, (Fl::event_key(FL_Shift_L) == 0) || (Fl::event_key(FL_Shift_R) == 0));
+			}
+			else {
+				std::cout << "Warning: dragging with unknown mouse button! Nothing will be done" << std::endl;
+			}
+
+			m_lastMouseX = Fl::event_x();
+			m_lastMouseY = Fl::event_y();
+			redraw();
+
+			damage(1);
+		}
+	}
+
+	return 1;
+
+	case FL_KEYBOARD:
+		return 0;
+
+	default:
+		return 0;
+	}
+}
+
+void MyGlWindow::getMouseNDC(float& x, float& y)
+{
+	// notice, we put everything into doubles so we can do the math
+	float mx = (float)Fl::event_x();	// remeber where the mouse went down
+	float my = (float)Fl::event_y();
+
+	// we will assume that the viewport is the same as the window size
+	float wd = (float)w();
+	float hd = (float)h();
+
+	// remember that FlTk has Y going the wrong way!
+	my = hd - my;
+
+	x = (mx / wd) * 2.0f - 1.f;
+	y = (my / hd) * 2.0f - 1.f;
 }

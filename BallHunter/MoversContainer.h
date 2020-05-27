@@ -22,8 +22,8 @@
 class MoversContainer
 {
 public:
-	MoversContainer(cyclone::Vector3 gravity);
-	MoversContainer(cyclone::Vector3 gravity, bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy);
+	MoversContainer(bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy);
+	MoversContainer() = default;
 	~MoversContainer() = default;
 	
 	void setIsConnectionToMovers(bool isConnectionToMovers);
@@ -48,7 +48,6 @@ public:
 	bool m_isConnectionToAnchor;
 	bool m_isBuoyancy;
 
-	cyclone::ParticleGravity *m_gravity;
 	cyclone::ParticleForceRegistry * m_forces;
 	std::vector<Mover *> m_movers;
 };

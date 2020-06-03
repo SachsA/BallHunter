@@ -5,12 +5,14 @@
 #include "timing.h"
 #include "ParticleCollision.h"
 
+
 //==================== Camera constants ====================//
 
 
 static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
+
 
 //==================== Mouse constants ====================//
 
@@ -333,7 +335,54 @@ void MyGlWindow::drawWaterTank()
 	glPopMatrix();
 }
 
-void MyGlWindow::drawBridge(int shadow)
+void MyGlWindow::drawRods(int shadow)
+{
+	if (shadow)
+		glColor3f(0.2, 0.2, 0.2);
+	else
+		glColor3f(0, 0, 1);
+	for (unsigned i = 0; i < rods.size(); i++)
+	{
+		cyclone::Particle** particles = rods[i]->particle;
+		const cyclone::Vector3& p0 = particles[0]->getPosition();
+		const cyclone::Vector3& p1 = particles[1]->getPosition();
+		glVertex3f(p0.x, p0.y, p0.z);
+		glVertex3f(p1.x, p1.y, p1.z);
+	}
+}
+
+void MyGlWindow::drawCables(int shadow)
+{
+	if (shadow)
+		glColor3f(0.2, 0.2, 0.2);
+	else
+		glColor3f(0, 1, 0);
+	for (unsigned i = 0; i < cables.size(); i++)
+	{
+		cyclone::Particle** particles = cables[i]->particle;
+		const cyclone::Vector3& p0 = particles[0]->getPosition();
+		const cyclone::Vector3& p1 = particles[1]->getPosition();
+		glVertex3f(p0.x, p0.y, p0.z);
+		glVertex3f(p1.x, p1.y, p1.z);
+	}
+}
+
+void MyGlWindow::drawSupports(int shadow)
+{
+	if (shadow)
+		glColor3f(0.2, 0.2, 0.2);
+	else
+		glColor3f(0.7f, 0.7f, 0.7f);
+	for (unsigned i = 0; i < supports.size(); i++)
+	{
+		const cyclone::Vector3& p0 = supports[i]->particle->getPosition();
+		const cyclone::Vector3& p1 = supports[i]->anchor;
+		glVertex3f(p0.x, p0.y, p0.z);
+		glVertex3f(p1.x, p1.y, p1.z);
+	}
+}
+
+void MyGlWindow::drawMovers(int shadow)
 {
 	glLineWidth(2.0);
 
@@ -341,73 +390,17 @@ void MyGlWindow::drawBridge(int shadow)
 
 	glBegin(GL_LINES);
 
-	if (shadow)
-		glColor3f(0.2, 0.2, 0.2);
-	else
-		glColor3f(0, 0, 1);
-	for (unsigned i = 0; i < rods.size(); i++)
-	{
-		cyclone::Particle **particles = rods[i]->particle;
-		const cyclone::Vector3 &p0 = particles[0]->getPosition();
-		const cyclone::Vector3 &p1 = particles[1]->getPosition();
-		glVertex3f(p0.x, p0.y, p0.z);
-		glVertex3f(p1.x, p1.y, p1.z);
-	}
+	drawRods(shadow);
+	drawCables(shadow);
+	drawSupports(shadow);
 
-	if (shadow)
-		glColor3f(0.2, 0.2, 0.2);
-	else
-		glColor3f(0, 1, 0);
-	for (unsigned i = 0; i < cables.size(); i++)
-	{
-		cyclone::Particle **particles = cables[i]->particle;
-		const cyclone::Vector3 &p0 = particles[0]->getPosition();
-		const cyclone::Vector3 &p1 = particles[1]->getPosition();
-		glVertex3f(p0.x, p0.y, p0.z);
-		glVertex3f(p1.x, p1.y, p1.z);
-	}
-
-	if (shadow)
-		glColor3f(0.2, 0.2, 0.2);
-	else
-		glColor3f(0.7f, 0.7f, 0.7f);
-	for (unsigned i = 0; i < supports.size(); i++)
-	{
-		const cyclone::Vector3 &p0 = supports[i]->particle->getPosition();
-		const cyclone::Vector3 &p1 = supports[i]->anchor;
-		glVertex3f(p0.x, p0.y, p0.z);
-		glVertex3f(p1.x, p1.y, p1.z);
-	}
 	glEnd();
 
 	glLineWidth(1.0);
 }
 
-void MyGlWindow::draw()
+void MyGlWindow::drawAxises()
 {
-	glViewport(0, 0, w(), h());
-
-	// clear the window, be sure to clear the Z-Buffer too
-	glClearColor(0.2, 0.2, 0.2, 1);		// background should be blue
-
-	glClearStencil(0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_DEPTH);
-
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-
-	// now draw the ground plane
-	setProjection();
-	setupFloor();
-
-	glPushMatrix();
-	drawFloor(200, 20);
-	glPopMatrix();
-
-	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
-
-	//Add a sphere to the scene.
-   //Draw axises
 	glLineWidth(3.0f);
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 0);
@@ -426,17 +419,43 @@ void MyGlWindow::draw()
 	glVertex3f(0, 0.1, 100);
 	glEnd();
 	glLineWidth(1.0f);
+}
+
+void MyGlWindow::draw()
+{
+	glViewport(0, 0, w(), h());
+
+	// clear the window, be sure to clear the Z-Buffer too
+	glClearColor(0.1, 0.1, 0.1, 1);
+
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_DEPTH);
+
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	// now draw the ground plane
+	setProjection();
+	setupFloor();
+
+	glPushMatrix();
+	drawFloor(200, 20);
+	glPopMatrix();
+
+	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
+
+	drawAxises();
 
 	//draw shadow
 	setupShadows();
-	drawBridge(1);
+	drawMovers(1);
 	unsetupShadows();
 
 	glEnable(GL_LIGHTING);
 
 	//draw objects
 	glPushMatrix();
-	drawBridge(0);
+	drawMovers(0);
 	glPopMatrix();
 
 	glEnable(GL_COLOR_MATERIAL);

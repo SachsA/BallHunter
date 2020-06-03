@@ -71,8 +71,15 @@ class MyGlWindow : public Fl_Gl_Window {
 		void setMoversBuoyancy();
 	private:
 		void draw();
+
+		void drawAxises();
+
+		void drawRods(int shadow);
+		void drawCables(int shadow);
+		void drawSupports(int shadow);
+		void drawMovers(int shadow);
+
 		void drawWaterTank();
-		void drawBridge(int shadow);
 		
 		int handle(int);
 		

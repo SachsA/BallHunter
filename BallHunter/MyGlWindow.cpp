@@ -72,7 +72,7 @@ void MyGlWindow::createMovers()
 	Color obj_color = Color(1, 0, 0);
 	Color shadow_color = Color(0.1, 0.1, 0.1);
 
-	m_world = new cyclone::ParticleWorld(120);
+	m_world = new cyclone::ParticleWorld(1000);
 
 	groundContact = new cyclone::MyGroundContact();
 
@@ -143,7 +143,7 @@ void MyGlWindow::setupLight(float x, float y, float z)
 
 void MyGlWindow::setupGround()
 {
-	for (size_t i = 0; i < 12; i++)
+	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
 		groundContact->init(m_container->m_movers[i]->m_particle, size);
 	}
@@ -155,7 +155,10 @@ void MyGlWindow::setupCables()
 {
 	int j = 0;
 
-	for (size_t i = 0; i < 5; i++)
+	if (m_container->m_movers.size() <= 1)
+		return;
+
+	for (size_t i = 0; i < (m_container->m_movers.size() / 2) - 1; i++)
 	{
 		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
 		cables.emplace_back(cable);
@@ -172,7 +175,7 @@ void MyGlWindow::setupCables()
 
 	j = 1;
 
-	for (size_t i = 5; i < 10; i++)
+	for (size_t i = 5; i < m_container->m_movers.size() - 2; i++)
 	{
 		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
 		cables.emplace_back(cable);
@@ -211,7 +214,7 @@ void MyGlWindow::setupRods()
 {
 	int j = 0;
 
-	for (size_t i = 0; i < 6; i++)
+	for (size_t i = 0; i < m_container->m_movers.size() / 2; i++)
 	{
 		cyclone::ParticleRod *rod = new cyclone::ParticleRod();
 		rods.emplace_back(rod);
@@ -230,7 +233,7 @@ void MyGlWindow::setupCableConstraints()
 {
 	cyclone::Vector3 position;
 
-	for (size_t i = 0; i < 12; i++)
+	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
 		cyclone::ParticleCableConstraint *support = new cyclone::ParticleCableConstraint();
 		supports.emplace_back(support);

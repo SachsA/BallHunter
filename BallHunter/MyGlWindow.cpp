@@ -6,11 +6,15 @@
 #include "ParticleCollision.h"
 
 //==================== Camera constants ====================//
+
+
 static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
 //==================== Mouse constants ====================//
+
+
 static int last_push;
 int m_pressedMouseButton;
 int m_lastMouseX;
@@ -49,11 +53,15 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 void MyGlWindow::createMovers()
 {
+	Mover* m;
+
 	size = 0.5;
 	int definition = 30;
 
 	float mass = 5.0f;
 	float damping = 0.8f;
+
+	cyclone::Quaternion rot;
 
 	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
 	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
@@ -74,7 +82,8 @@ void MyGlWindow::createMovers()
 	for (size_t i = 0; i < 12; i++)
 	{
 		position = cyclone::Vector3(x, 8, z);
-		m_container->m_movers.emplace_back(new Mover(size, definition, mass, damping, position, velocity, acceleration, shadow_color, obj_color));
+		m = new Mover(Sphere, size, definition, mass, damping, position, velocity, acceleration, shadow_color, obj_color);
+		m_container->m_movers.emplace_back(m);
 
 		m_world->getParticles().emplace_back(m_container->m_movers[i]->m_particle);
 		m_world->getForceRegistry().add(m_container->m_movers[i]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
@@ -326,29 +335,9 @@ void MyGlWindow::drawWaterTank()
 
 void MyGlWindow::drawBridge(int shadow)
 {
-	glLineWidth(3.0);
+	glLineWidth(2.0);
 
-	if (shadow)
-		glColor3f(0.2, 0.2, 0.2);
-	else
-		glColor3f(0.8, 0, 0);
-
-	int name = 1;
-	cyclone::ParticleWorld::Particles &particles = m_world->getParticles();
-	for (cyclone::ParticleWorld::Particles::iterator p = particles.begin();
-		p != particles.end();
-		p++)
-	{
-		cyclone::Particle *particle = *p;
-		const cyclone::Vector3 &pos = particle->getPosition();
-		glPushMatrix();
-		glTranslatef(pos.x, pos.y, pos.z);
-		if (!shadow)
-			glLoadName(name);
-		glutSolidSphere(size, 20, 10);
-		glPopMatrix();
-		name++;
-	}
+	m_container->draw(shadow);
 
 	glBegin(GL_LINES);
 

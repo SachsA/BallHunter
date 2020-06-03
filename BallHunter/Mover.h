@@ -20,11 +20,13 @@
 #include "MySpring.h"
 #include "MyAnchoredSpring.h"
 #include "MyParticleBuoyancy.h"
+#include "MoverType.h"
 
 class Mover
 {
 public:
-	Mover(float size, int definition,
+	Mover(MoverType type,
+		float size, int definition,
 		float m_mass, float m_damping,
 		cyclone::Vector3 position, cyclone::Vector3 velocity,
 		cyclone::Vector3 acceleration,
@@ -32,9 +34,16 @@ public:
 	~Mover() = default;
 
 	void update(float duration, bool updateBetweenMovers, bool updateAnchor, bool updateBuoyancy);
+	
 	void windBlow();
 	void reset();
+
+	void drawSphere();
+	void drawCube();
 	void draw(int shadow);
+	
+	void getGLTransform(float matrix[16]);
+
 	void setConnection(Mover *other, float spring, int length);
 	void setAnchoredConnection(cyclone::Vector3 *anchored, double springConst, double restLength);
 	void setParticleBuoyancy(cyclone::real maxDepth, cyclone::real volume, cyclone::real waterHeight, cyclone::real liquidDensity);
@@ -45,6 +54,11 @@ public:
 	float m_size;
 	float m_mass;
 	float m_damping;
+
+	MoverType m_type;
+
+	cyclone::Quaternion orientation;
+	cyclone::Matrix4 transformMatrix;
 
 	cyclone::Vector3 m_position;
 	cyclone::Vector3 m_velocity;

@@ -1,11 +1,15 @@
 #include "Mover.h"
 
-Mover::Mover(float size, int definition,
+//==================== Construction methods ====================//
+
+Mover::Mover(MoverType type,
+	float size, int definition,
 	float mass, float damping,
 	cyclone::Vector3 position, cyclone::Vector3 velocity,
 	cyclone::Vector3 acceleration,
 	Color shadow_color, Color obj_color)
 {
+	m_type = type;
 	m_size = size;
 	m_definition = definition;
 	m_mass = mass;
@@ -34,6 +38,10 @@ Mover::Mover(float size, int definition,
 	reset();
 }
 
+
+//==================== Setup methods ====================//
+
+
 void Mover::setConnection(Mover *other, float spring, int length)
 {
 	m_spring.emplace_back(new cyclone::MySpring(other->m_particle, spring, length));
@@ -48,6 +56,10 @@ void Mover::setParticleBuoyancy(cyclone::real maxDepth, cyclone::real volume, cy
 {
 	m_buoyancy = new cyclone::MyParticleBuoyancy(m_size, m_mass, maxDepth, volume, waterHeight, liquidDensity);
 }
+
+
+//==================== Core methods ====================//
+
 
 void Mover::update(float duration, bool updateBetweenMovers, bool updateAnchor, bool updateBuoyancy)
 {
@@ -73,6 +85,12 @@ void Mover::update(float duration, bool updateBetweenMovers, bool updateAnchor, 
 	m_particle->integrate(duration);
 }
 
+void Mover::reset()
+{
+	m_particle->setPosition(m_position_save);
+	m_particle->setVelocity(0, 0, 0);
+}
+
 //Add wind blowing
 void Mover::windBlow()
 {
@@ -80,11 +98,9 @@ void Mover::windBlow()
 	m_particle->addForce(wind);
 }
 
-void Mover::reset()
-{
-	m_particle->setPosition(m_position_save);
-	m_particle->setVelocity(0, 0, 0);
-}
+
+//==================== Draw methods ====================//
+
 
 void Mover::draw(int shadow)
 {
@@ -98,7 +114,50 @@ void Mover::draw(int shadow)
 	}
 
 	glPushMatrix();
+
+	if (m_type == Sphere)
+		drawSphere();
+	else if (m_type == Cube)
+		drawCube();
+
+	glPopMatrix();
+}
+
+void Mover::drawSphere()
+{
 	glTranslatef(m_position.x, m_position.y, m_position.z);
 	glutSolidSphere(m_size, m_definition, m_definition);
-	glPopMatrix();
+}
+
+void Mover::getGLTransform(float matrix[16])
+{
+	matrix[0] = (float)transformMatrix.data[0];
+	matrix[1] = (float)transformMatrix.data[4];
+	matrix[2] = (float)transformMatrix.data[8];
+	matrix[3] = 0;
+
+	matrix[4] = (float)transformMatrix.data[1];
+	matrix[5] = (float)transformMatrix.data[5];
+	matrix[6] = (float)transformMatrix.data[9];
+	matrix[7] = 0;
+
+	matrix[8] = (float)transformMatrix.data[2];
+	matrix[9] = (float)transformMatrix.data[6];
+	matrix[10] = (float)transformMatrix.data[10];
+	matrix[11] = 0;
+
+	matrix[12] = (float)transformMatrix.data[3];
+	matrix[13] = (float)transformMatrix.data[7];
+	matrix[14] = (float)transformMatrix.data[11];
+	matrix[15] = 1;
+}
+
+void Mover::drawCube()
+{
+	// Get the OpenGL transformation
+	GLfloat mat[16];
+	getGLTransform(mat); //convert transformMatrix to opengl-friendly 1D array
+
+	glMultMatrixf(mat);
+	glutSolidCube(1.0f);
 }

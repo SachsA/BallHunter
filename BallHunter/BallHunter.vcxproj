@@ -157,6 +157,7 @@
     <ClInclude Include="MyGroundContact.h" />
     <ClInclude Include="MyParticleBuoyancy.h" />
     <ClInclude Include="MySpring.h" />
+    <ClInclude Include="MoverType.h" />
     <ClInclude Include="ParticleCollision.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="timing.h" />

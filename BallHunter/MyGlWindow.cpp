@@ -48,9 +48,10 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 	setupGround();
 	setupCollisions();
-	setupCables();
-	setupRods();
-	setupCableConstraints();
+
+	//setupCables();
+	//setupRods();
+	//setupCableConstraints();
 }
 
 void MyGlWindow::createMovers()
@@ -78,24 +79,12 @@ void MyGlWindow::createMovers()
 
 	m_container = new MoversContainer(moversBetweenMovers, moversToAnchor, buoyancy);
 
-	int x = -10;
-	int z = 1;
+	position = cyclone::Vector3(5, 15, 10);
+	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, acceleration, shadow_color, obj_color);
+	m_container->m_movers.emplace_back(m);
 
-	for (size_t i = 0; i < 12; i++)
-	{
-		position = cyclone::Vector3(x, 8, z);
-		m = new Mover(Sphere, size, definition, mass, damping, position, velocity, acceleration, shadow_color, obj_color);
-		m_container->m_movers.emplace_back(m);
-
-		m_world->getParticles().emplace_back(m_container->m_movers[i]->m_particle);
-		m_world->getForceRegistry().add(m_container->m_movers[i]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
-
-		//Increment x to next place
-		if (z == -1)
-			x += 3;
-		
-		z *= -1;
-	}
+	m_world->getParticles().emplace_back(m_container->m_movers[0]->m_particle);
+	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
 }
 
 

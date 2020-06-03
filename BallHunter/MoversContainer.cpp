@@ -120,8 +120,8 @@ void MoversContainer::drawStick()
 	glPushMatrix();
 	glBegin(GL_LINES);
 
-	glVertex3f(5, 0, 5); //Starting point
-	glVertex3f(5, 15, 5);  //Ending point
+	glVertex3f(5, 0, 10); //Starting point
+	glVertex3f(5, 15, 10);  //Ending point
 	glEnd();
 	glPopMatrix();
 }

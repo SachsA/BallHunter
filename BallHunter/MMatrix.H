@@ -26,42 +26,42 @@
 // this line is straight out of the original GL (RIP)
 typedef float Matrix[4][4];
 
- void idMatrix(Matrix);
- void copyMatrix(Matrix,Matrix);
- void multMatrix(Matrix,Matrix,Matrix);
+void idMatrix(Matrix);
+void copyMatrix(Matrix, Matrix);
+void multMatrix(Matrix, Matrix, Matrix);
 
 // transformMatrix means transform point (2D, 3D, 4D) by a Matrix
- void transformMatrix(Matrix,float,float,float&,float&); 
- void transformMatrix(Matrix,float,float,float,float&,float&,float&); 
- void transformMatrix(Matrix,float,float,float,float,float&,float&,float&,float&); 
- void transformMatrixNH(Matrix,float,float,float,float&,float&,float&); 
- void transformTransposeMatrix(Matrix,float,float,float,float&,float&,float&); 
+void transformMatrix(Matrix, float, float, float&, float&);
+void transformMatrix(Matrix, float, float, float, float&, float&, float&);
+void transformMatrix(Matrix, float, float, float, float, float&, float&, float&, float&);
+void transformMatrixNH(Matrix, float, float, float, float&, float&, float&);
+void transformTransposeMatrix(Matrix, float, float, float, float&, float&, float&);
 
 // matrix utils
- int invertMatrix(Matrix, int printErrors=1);
- void printMatrix(Matrix);
+int invertMatrix(Matrix, int printErrors = 1);
+void printMatrix(Matrix);
 
 // build various different matrices useful in graphics
- void rotMatrix(Matrix,float);
- void rotMatrix(Matrix,char,float);
- void transMatrix(Matrix,float,float);
- void transMatrix(Matrix,float,float,float);
+void rotMatrix(Matrix, float);
+void rotMatrix(Matrix, char, float);
+void transMatrix(Matrix, float, float);
+void transMatrix(Matrix, float, float, float);
 
 extern  Matrix scrMat;
 
- void postMultiply(Matrix,float[4],float[4]);
- void preMultiply(float[4],Matrix,float[4]);
- float dot4(float[4],float[4]);
- void print4(float[4]);
+void postMultiply(Matrix, float[4], float[4]);
+void preMultiply(float[4], Matrix, float[4]);
+float dot4(float[4], float[4]);
+void print4(float[4]);
 
- void quaternionMatrix(float,float,float,float,Matrix);
+void quaternionMatrix(float, float, float, float, Matrix);
 
- // another useful thing
- inline float ABS(const float x) {  return( ((x) >= 0) ? (x) : -(x)); }
+// another useful thing
+inline float ABS(const float x) { return(((x) >= 0) ? (x) : -(x)); }
 
 // since we don't have 3 vectors..
 void cross(float ax, float ay, float az, float bx, float by, float bz,
-		   float& cx, float& cy, float& cz);
+	float& cx, float& cy, float& cz);
 void normalize(float* v);
 void scale(float*, float);
 // a hack...

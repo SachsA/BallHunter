@@ -2,13 +2,21 @@
 
 using namespace cyclone;
 
-MyAnchoredSpring::MyAnchoredSpring(cyclone::Vector3 *anchor, double springConstant,
+
+//==================== Construction/Destruction methods ====================//
+
+
+MyAnchoredSpring::MyAnchoredSpring(cyclone::Vector3* anchor, double springConstant,
 	double restLenght)
 {
 	this->anchor = anchor;
 	this->springConstant = springConstant;
 	this->restLength = restLenght;
 }
+
+
+//==================== Core methods ====================//
+
 
 void MyAnchoredSpring::updateForce(Particle* particle, real duration)
 {

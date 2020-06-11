@@ -9,7 +9,7 @@
 //==================== Camera constants ====================//
 
 
-static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
+static double DEFAULT_VIEW_POINT[3] = { 0, 30, 100 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
@@ -49,6 +49,10 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	setupGround();
 	setupCollisions();
 
+	setupMoversBetweenMovers();
+	setupMoversToAnchor();
+	setupBuoyancy();
+
 	//setupCables();
 	//setupRods();
 	//setupCableConstraints();
@@ -58,17 +62,14 @@ void MyGlWindow::createMovers()
 {
 	Mover* m;
 
-	size = 0.5;
+	size = 2;
 	int definition = 30;
 
 	float mass = 5.0f;
 	float damping = 0.8f;
 
-	cyclone::Quaternion rot;
-
 	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
 	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
-	cyclone::Vector3 acceleration = cyclone::Vector3::GRAVITY;
 
 	Color obj_color = Color(1, 0, 0);
 	Color shadow_color = Color(0.1, 0.1, 0.1);
@@ -79,12 +80,21 @@ void MyGlWindow::createMovers()
 
 	m_container = new MoversContainer(moversBetweenMovers, moversToAnchor, buoyancy);
 
-	position = cyclone::Vector3(5, 15, 10);
-	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, acceleration, shadow_color, obj_color);
+	position = cyclone::Vector3(0, 15, 10);
+	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m_container->m_movers[0]->m_particle);
 	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+
+	position = cyclone::Vector3(5, 15, 10);
+	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m_container->m_movers.emplace_back(m);
+
+	m_world->getParticles().emplace_back(m_container->m_movers[1]->m_particle);
+	m_world->getForceRegistry().add(m_container->m_movers[1]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m_container->m_movers[1]->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
 }
 
 
@@ -130,6 +140,30 @@ void MyGlWindow::setupLight(float x, float y, float z)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void MyGlWindow::setupProjection(int clearProjection)
+{
+	glMatrixMode(GL_PROJECTION);
+	glViewport(0, 0, w(), h());
+	if (clearProjection)
+		glLoadIdentity();
+	// compute the aspect ratio so we don't distort things
+	double aspect = ((double)w()) / ((double)h());
+	gluPerspective(fieldOfView, aspect, 1, 1000);
+
+	// put the camera where we want it to be
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	// use the transformation in the ArcBall
+
+	gluLookAt(
+		m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z,
+		m_viewer->getViewCenter().x, m_viewer->getViewCenter().y, m_viewer->getViewCenter().z,
+		m_viewer->getUpVector().x, m_viewer->getUpVector().y, m_viewer->getUpVector().z
+	);
+
+	glDisable(GL_BLEND);
+}
+
 void MyGlWindow::setupGround()
 {
 	for (size_t i = 0; i < m_container->m_movers.size(); i++)
@@ -138,6 +172,71 @@ void MyGlWindow::setupGround()
 	}
 
 	m_world->getContactGenerators().emplace_back(groundContact);
+}
+
+void MyGlWindow::setupCollisions()
+{
+	for (size_t first = 0; first < m_container->m_movers.size(); first++)
+	{
+		for (size_t second = 0; second < m_container->m_movers.size(); second++) {
+			if (first == second)
+				continue;
+
+			cyclone::ParticleCollision* particleCollision = new cyclone::ParticleCollision(size);
+			particleCollision->size = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
+
+			particleCollision->particle[0] = m_container->m_movers[first]->m_particle;
+			particleCollision->particle[1] = m_container->m_movers[second]->m_particle;
+
+			m_world->getContactGenerators().emplace_back(particleCollision);
+		}
+	}
+}
+
+void MyGlWindow::setupMoversBetweenMovers()
+{
+	if (moversBetweenMovers) {
+		if (m_container->m_movers.size() <= 1) {
+			moversBetweenMovers = false;
+			m_container->m_isConnectionToMovers = false;
+		}
+		else {
+			for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
+				if (i + 1 < m_container->m_movers.size()) {
+					m_container->m_movers[i]->setupConnection(m_container->m_movers[i + 1], 20, 3);
+					m_container->m_movers[i + 1]->setupConnection(m_container->m_movers[i], 20, 3);
+				}
+			}
+			m_container->initForcesBetweenMovers();
+		}
+	}
+}
+
+void MyGlWindow::setupMoversToAnchor()
+{
+	cyclone::Vector3* anchor = new cyclone::Vector3(0, 20, 0);
+
+	if (moversToAnchor) {
+		if (anchor == nullptr) {
+			moversToAnchor = false;
+			m_container->m_isConnectionToAnchor = false;
+		}
+		else {
+			for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
+				m_container->m_movers[i]->setupAnchoredConnection(anchor, 5, 5);
+			}
+			m_container->initForcesAnchored();
+		}
+	}
+}
+
+void MyGlWindow::setupBuoyancy()
+{
+	if (buoyancy) {
+		for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
+			m_container->m_movers[i]->setupParticleBuoyancy(0, 1, 10, 2);
+		}
+	}
 }
 
 void MyGlWindow::setupCables()
@@ -149,7 +248,7 @@ void MyGlWindow::setupCables()
 
 	for (size_t i = 0; i < (m_container->m_movers.size() / 2) - 1; i++)
 	{
-		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
+		cyclone::ParticleCable* cable = new cyclone::ParticleCable();
 		cables.emplace_back(cable);
 
 		cable->particle[0] = m_container->m_movers[j]->m_particle;
@@ -166,7 +265,7 @@ void MyGlWindow::setupCables()
 
 	for (size_t i = 5; i < m_container->m_movers.size() - 2; i++)
 	{
-		cyclone::ParticleCable *cable = new cyclone::ParticleCable();
+		cyclone::ParticleCable* cable = new cyclone::ParticleCable();
 		cables.emplace_back(cable);
 
 		cable->particle[0] = m_container->m_movers[j]->m_particle;
@@ -180,32 +279,13 @@ void MyGlWindow::setupCables()
 	}
 }
 
-void MyGlWindow::setupCollisions()
-{
-	for (size_t first = 0; first < m_container->m_movers.size(); first++)
-	{
-		for (size_t second = 0; second < m_container->m_movers.size(); second++) {
-			if (first == second)
-				continue;
-
-			cyclone::ParticleCollision *particleCollision = new cyclone::ParticleCollision(size);
-			particleCollision->size = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
-
-			particleCollision->particle[0] = m_container->m_movers[first]->m_particle;
-			particleCollision->particle[1] = m_container->m_movers[second]->m_particle;
-
-			m_world->getContactGenerators().emplace_back(particleCollision);
-		}
-	}
-}
-
 void MyGlWindow::setupRods()
 {
 	int j = 0;
 
 	for (size_t i = 0; i < m_container->m_movers.size() / 2; i++)
 	{
-		cyclone::ParticleRod *rod = new cyclone::ParticleRod();
+		cyclone::ParticleRod* rod = new cyclone::ParticleRod();
 		rods.emplace_back(rod);
 
 		rod->particle[0] = m_container->m_movers[j]->m_particle;
@@ -224,7 +304,7 @@ void MyGlWindow::setupCableConstraints()
 
 	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
-		cyclone::ParticleCableConstraint *support = new cyclone::ParticleCableConstraint();
+		cyclone::ParticleCableConstraint* support = new cyclone::ParticleCableConstraint();
 		supports.emplace_back(support);
 
 		support->particle = m_container->m_movers[i]->m_particle;
@@ -268,62 +348,127 @@ void MyGlWindow::update()
 
 	if (duration <= 0.0f) return;
 
-	if (windBlowing == 1)
+	if (windBlowing == true)
 		m_container->windBlow();
 
+	if (buoyancy)
+		m_container->floating(duration);
+
+	if (moversBetweenMovers)
+		m_container->attachMoversToEachOther(duration);
+
+	if (moversToAnchor)
+		m_container->attachMoversToAnchor(duration);
+
 	m_world->runPhysics(duration);
-}
-
-
-//==================== Movers methods ====================//
-
-
-void MyGlWindow::attachMultipleMovers()
-{
-	for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
-		if (i + 1 < m_container->m_movers.size()) {
-			m_container->m_movers[i]->setConnection(m_container->m_movers[i + 1], 20, 3);
-			m_container->m_movers[i + 1]->setConnection(m_container->m_movers[i], 20, 3);
-		}
-	}
-
-	m_container->initForces();
-}
-
-void MyGlWindow::attachMoversToAnchor(cyclone::Vector3 *anchor)
-{
-	for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
-		m_container->m_movers[i]->setAnchoredConnection(anchor, 5, 5);
-	}
-
-	m_container->initForcesAnchored();
-}
-
-void MyGlWindow::setMoversBuoyancy()
-{
-	for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
-		m_container->m_movers[i]->setParticleBuoyancy(0, 1, 10, 2);
-	}
 }
 
 
 //==================== Draw methods ====================//
 
 
+void MyGlWindow::draw()
+{
+	glViewport(0, 0, w(), h());
+
+	// clear the window, be sure to clear the Z-Buffer too
+	glClearColor(0.1, 0.1, 0.1, 1);
+
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_DEPTH);
+
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	// now draw the ground plane
+	setupProjection();
+	setupFloor();
+
+	glPushMatrix();
+	drawFloor(2000, 200);
+	glPopMatrix();
+
+	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
+
+	//Draw x, y and z axises
+	//drawAxises();
+
+	//draw shadow
+	setupShadows();
+	drawMovers(1);
+	unsetupShadows();
+
+	glEnable(GL_LIGHTING);
+
+	//draw objects
+	glPushMatrix();
+	drawMovers(0);
+	glPopMatrix();
+
+	glEnable(GL_COLOR_MATERIAL);
+
+	if (moversToAnchor)
+		drawAnchor();
+
+	if (buoyancy)
+		drawWaterTank();
+}
+
+void MyGlWindow::drawAxises()
+{
+	glLineWidth(3.0f);
+	glBegin(GL_LINES);
+	glColor3f(1, 0, 0);
+
+	glVertex3f(0, 0.1, 0);
+	glVertex3f(0, 100, 0);
+
+	glColor3f(0, 1, 0);
+
+	glVertex3f(0, 0.1, 0);
+	glVertex3f(100, 0.1, 0);
+
+	glColor3f(0, 0, 1);
+
+	glVertex3f(0, 0.1, 0);
+	glVertex3f(0, 0.1, 100);
+	glEnd();
+	glLineWidth(1.0f);
+}
+
 void MyGlWindow::drawWall()
 {
 	polygonf(4, 20., 0., -25., 20., 0., 25., 20., 30., 25., 20., 30., -25.);
 }
 
-void MyGlWindow::drawWaterTank()
+void MyGlWindow::drawMovers(int shadow)
 {
-	glDisable(GL_LIGHTING);
-	glEnable(GL_BLEND);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glLineWidth(2.0);
+
+	m_container->draw(shadow);
+
+	glBegin(GL_LINES);
+
+	drawRods(shadow);
+	drawCables(shadow);
+	drawSupports(shadow);
+
+	glEnd();
+
+	glLineWidth(1.0);
+}
+
+void MyGlWindow::drawAnchor()
+{
+	glColor3f(1, 0, 1);  //Line color
+	glLineWidth(3.0f);  //Line Width
+
 	glPushMatrix();
-	glColor4f(0, 0, 1, 0.2f);
-	glTranslatef(0, 5.0, 0);
-	drawCube(100, 10, 100);
+	glBegin(GL_LINES);
+
+	glVertex3f(0, 0, 0); //Starting point
+	glVertex3f(0, 20, 0);  //Ending point
+	glEnd();
 	glPopMatrix();
 }
 
@@ -374,86 +519,16 @@ void MyGlWindow::drawSupports(int shadow)
 	}
 }
 
-void MyGlWindow::drawMovers(int shadow)
+void MyGlWindow::drawWaterTank()
 {
-	glLineWidth(2.0);
-
-	m_container->draw(shadow);
-
-	glBegin(GL_LINES);
-
-	drawRods(shadow);
-	drawCables(shadow);
-	drawSupports(shadow);
-
-	glEnd();
-
-	glLineWidth(1.0);
-}
-
-void MyGlWindow::drawAxises()
-{
-	glLineWidth(3.0f);
-	glBegin(GL_LINES);
-	glColor3f(1, 0, 0);
-
-	glVertex3f(0, 0.1, 0);
-	glVertex3f(0, 100, 0);
-
-	glColor3f(0, 1, 0);
-
-	glVertex3f(0, 0.1, 0);
-	glVertex3f(100, 0.1, 0);
-
-	glColor3f(0, 0, 1);
-
-	glVertex3f(0, 0.1, 0);
-	glVertex3f(0, 0.1, 100);
-	glEnd();
-	glLineWidth(1.0f);
-}
-
-void MyGlWindow::draw()
-{
-	glViewport(0, 0, w(), h());
-
-	// clear the window, be sure to clear the Z-Buffer too
-	glClearColor(0.1, 0.1, 0.1, 1);
-
-	glClearStencil(0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_DEPTH);
-
+	glDisable(GL_LIGHTING);
+	glEnable(GL_BLEND);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-
-	// now draw the ground plane
-	setProjection();
-	setupFloor();
-
 	glPushMatrix();
-	drawFloor(200, 20);
+	glColor4f(0, 0, 1, 0.2f);
+	glTranslatef(0, 5.0, 0);
+	drawCube(100, 10, 100);
 	glPopMatrix();
-
-	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
-
-	drawAxises();
-
-	//draw shadow
-	setupShadows();
-	drawMovers(1);
-	unsetupShadows();
-
-	glEnable(GL_LIGHTING);
-
-	//draw objects
-	glPushMatrix();
-	drawMovers(0);
-	glPopMatrix();
-
-	glEnable(GL_COLOR_MATERIAL);
-
-	if (buoyancy)
-		drawWaterTank();
 }
 
 
@@ -477,7 +552,7 @@ void MyGlWindow::doPick()
 	gluPickMatrix((double)mx, (double)(viewport[3] - my), 5, 5, viewport);
 
 	// now set up the projection
-	setProjection(false);
+	setupProjection(false);
 
 	// now draw the objects - but really only see what we hit
 	GLuint buf[100];
@@ -500,30 +575,6 @@ void MyGlWindow::doPick()
 	else {// nothing hit, nothing selected
 		selected = -1;
 	}
-}
-
-void MyGlWindow::setProjection(int clearProjection)
-{
-	glMatrixMode(GL_PROJECTION);
-	glViewport(0, 0, w(), h());
-	if (clearProjection)
-		glLoadIdentity();
-	// compute the aspect ratio so we don't distort things
-	double aspect = ((double)w()) / ((double)h());
-	gluPerspective(fieldOfView, aspect, 1, 1000);
-
-	// put the camera where we want it to be
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	// use the transformation in the ArcBall
-
-	gluLookAt(
-		m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z,
-		m_viewer->getViewCenter().x, m_viewer->getViewCenter().y, m_viewer->getViewCenter().z,
-		m_viewer->getUpVector().x, m_viewer->getUpVector().y, m_viewer->getUpVector().z
-	);
-
-	glDisable(GL_BLEND);
 }
 
 int MyGlWindow::handle(int e)

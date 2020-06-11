@@ -2,7 +2,6 @@
 // or project specific include files that are used frequently, but
 // are changed infrequently
 
-
 #pragma once
 
 #define _CRT_SECURE_NO_DEPRECATE 1
@@ -22,7 +21,6 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-
 
 #include <GL/GL.h>
 #include <GL/GLu.h>
@@ -77,7 +75,5 @@
 #pragma warning( default : 4312 )
 #pragma warning( default : 4311 )
 #pragma warning( default : 4244 )
-
-
 
 // TODO: reference additional headers your program requires here

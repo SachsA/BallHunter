@@ -3,12 +3,20 @@
 
 using namespace cyclone;
 
+
+//==================== Construction/Destruction methods ====================//
+
+
 ParticleCollision::ParticleCollision(double size)
 {
 	this->size = size;
 }
 
-unsigned ParticleCollision::addContact(ParticleContact *contact, unsigned limit) const
+
+//==================== Core methods ====================//
+
+
+unsigned ParticleCollision::addContact(ParticleContact* contact, unsigned limit) const
 {
 	contact->particle[0] = particle[0];
 	contact->particle[1] = particle[1];

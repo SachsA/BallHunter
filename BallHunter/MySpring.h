@@ -20,12 +20,27 @@
 namespace cyclone {
 	class MySpring : public ParticleForceGenerator  //Force generating class
 	{
-		double springConstant; //Spring constant
-		double restLength;  //lest length
 	public:
-		cyclone::Particle *other;  //Target particle
 
-		MySpring(cyclone::Particle * p, double springConstant, double restLenght);
-		virtual void updateForce(cyclone::Particle * p, double duration);
+
+		//==================== Construction/Destruction methods ====================//
+
+
+		MySpring(cyclone::Particle* p, double springConstant, double restLenght);
+
+
+		//==================== Core methods ====================//
+
+
+		virtual void updateForce(cyclone::Particle* p, double duration);
+
+
+		//==================== VARIABLES ====================//
+
+
+		double springConstant; //Spring constant
+		double restLength; //lest length
+
+		cyclone::Particle* other; //Target particle
 	};
 }

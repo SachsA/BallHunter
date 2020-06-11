@@ -22,17 +22,17 @@ void polygoni(int nv, ...);
 void polygonf(int nv, ...);
 // notice this takes doubles so it is easier to use polygon
 void cube(double x, double y, double z, double s);
-void cube2(double x, double y, double z, double sx,double sy,double sz);
+void cube2(double x, double y, double z, double sx, double sy, double sz);
 // colors are R,G,B 0->1
 // if you get RGB>1, assume that its 0-255 and convert
 class Color {
 public:
-  Color(float R=0, float G=0, float B=0, float A=1);
-  Color(Color&);
+	Color(float R = 0, float G = 0, float B = 0, float A = 1);
+	Color(Color&);
 
-  float r,g,b,a;
-  void operator() (float R=0, float G=0, float B=0, float A=1);
-  void operator() (int*);
+	float r, g, b, a;
+	void operator() (float R = 0, float G = 0, float B = 0, float A = 1);
+	void operator() (int*);
 };
 
 const float pi = 3.1415927f; // windows won't give me one of these
@@ -40,7 +40,7 @@ const float pi = 3.1415927f; // windows won't give me one of these
 
 // sometimes we need to build a LookAt matrix. this calls
 // glu and grabs the result...
-void lookatMatrix(float ex, float ey, float ez, 
-				  float ax, float ay, float az, Matrix r);
+void lookatMatrix(float ex, float ey, float ez,
+	float ax, float ay, float az, Matrix r);
 
 #endif

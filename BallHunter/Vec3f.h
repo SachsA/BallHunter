@@ -15,7 +15,7 @@ private:
 	float _x, _y, _z;
 
 public:
-	Vec3f(const float x=0.f, const float y=0.f, const float z=0.f)
+	Vec3f(const float x = 0.f, const float y = 0.f, const float z = 0.f)
 		: _x(x), _y(y), _z(z)
 	{ }
 	Vec3f(const Vec3f& other)
@@ -47,28 +47,28 @@ public:
 	// Dot product
 	inline float dot(const Vec3f& rhs) const
 	{
-		return _x * rhs._x 
-			 + _y * rhs._y 
-			 + _z * rhs._z;
+		return _x * rhs._x
+			+ _y * rhs._y
+			+ _z * rhs._z;
 	}
 
 	// Cross product
-	inline Vec3f cross(const Vec3f& rhs) const 
+	inline Vec3f cross(const Vec3f& rhs) const
 	{
 		return Vec3f(
-			_y * rhs._z - _z * rhs._y, 
-			_z * rhs._x - _x * rhs._z, 
-			_x * rhs._y - _y * rhs._x );
+			_y * rhs._z - _z * rhs._y,
+			_z * rhs._x - _x * rhs._z,
+			_x * rhs._y - _y * rhs._x);
 	}
 
 	// Normalization
-	inline Vec3f& normalize() 
+	inline Vec3f& normalize()
 	{
 		float d = sqrt(_x * _x + _y * _y + _z * _z);
-		if( d == 0.f )
+		if (d == 0.f)
 			d = 1.f;
 
-		(*this) *= 1.f / d; 
+		(*this) *= 1.f / d;
 
 		return *this;
 	}
@@ -76,7 +76,7 @@ public:
 	// Assignment operator
 	inline const Vec3f& operator=(const Vec3f& rhs)
 	{
-		if( this != &rhs ) 
+		if (this != &rhs)
 		{
 			_x = rhs._x;
 			_y = rhs._y;
@@ -115,24 +115,24 @@ public:
 	// Equality operator
 	inline bool operator==(const Vec3f& other)
 	{
-		return (this->_x == other._x 
-			 && this->_y == other._y
-			 && this->_z == other._z);
+		return (this->_x == other._x
+			&& this->_y == other._y
+			&& this->_z == other._z);
 	}
 
 	//  Inequality operator
 	inline bool operator!=(const Vec3f& other)
 	{
-		return (this->_x != other._x 
-			 && this->_y != other._y
-			 && this->_z != other._z);
+		return (this->_x != other._x
+			&& this->_y != other._y
+			&& this->_z != other._z);
 	}
 
 	// Print components to a given ostream (defaults to cout)
-	inline void print(std::ostream& out=std::cout) const 
+	inline void print(std::ostream& out = std::cout) const
 	{
-		out << "("  << _x 
-			<< ", " << _y 
+		out << "(" << _x
+			<< ", " << _y
 			<< ", " << _z
 			<< ") ";
 	}

@@ -12,9 +12,9 @@ static float DEFAULT_ROTATE_SPEED = 2.0;
 using namespace std;
 
 Viewer::Viewer(
-	const glm::vec3 &viewPoint, const glm::vec3 &viewCenter, const glm::vec3 &upVector,
+	const glm::vec3& viewPoint, const glm::vec3& viewCenter, const glm::vec3& upVector,
 	float fieldOfView, float aspectRatio
-	) :
+) :
 	m_viewPoint(viewPoint),
 	m_viewCenter(viewCenter),
 	m_upVector(upVector),
@@ -55,7 +55,7 @@ void Viewer::zoom(float changeVert) {
 
 const float pi = glm::pi<float>();
 
-glm::quat setFromAxisAngle(glm::vec3 & axis, float angle) {
+glm::quat setFromAxisAngle(glm::vec3& axis, float angle) {
 
 	float cosAng = cosf(angle / 2.0f);
 	float sinAng = sinf(angle / 2.0f);
@@ -77,7 +77,7 @@ glm::quat setFromAxisAngle(glm::vec3 & axis, float angle) {
 }
 
 
-void makeOrthogonalTo(glm::vec3 & vec1,  glm::vec3 & vec2) {
+void makeOrthogonalTo(glm::vec3& vec1, glm::vec3& vec2) {
 	float length = glm::length(vec2);
 
 	if (length == 0) {
@@ -99,12 +99,12 @@ void Viewer::rotate(float changeHoriz, float changeVert) {
 
 	glm::quat horizRot;
 	horizRot = setFromAxisAngle(m_imagePlaneHorizDir, horizRotAngle);
-	
+
 
 	glm::quat vertRot;
 	vertRot = setFromAxisAngle(m_imagePlaneVertDir, vertRotAngle);
 
- 	glm::quat totalRot = horizRot * vertRot;
+	glm::quat totalRot = horizRot * vertRot;
 
 	glm::vec3 viewVec = m_viewPoint - m_viewCenter;
 	viewVec = totalRot * viewVec;
@@ -114,58 +114,58 @@ void Viewer::rotate(float changeHoriz, float changeVert) {
 	getFrustrumInfo();
 }
 
-void Viewer::centerAt(const  glm::vec3 &pos) {
+void Viewer::centerAt(const  glm::vec3& pos) {
 	m_viewPoint += (pos - m_viewCenter);
 	m_viewCenter = pos;
 	getFrustrumInfo();
 }
 
-void Viewer::lookFrom(const glm::vec3 &pos) {
+void Viewer::lookFrom(const glm::vec3& pos) {
 	m_viewPoint = pos;
 	getFrustrumInfo();
 }
 
 glm::vec3 Viewer::getViewPoint() const {
-	return( m_viewPoint );
+	return(m_viewPoint);
 }
 
 glm::vec3 Viewer::getViewCenter() const {
-	return( m_viewCenter );
+	return(m_viewCenter);
 }
 
 glm::vec3 Viewer::getUpVector() const {
-	return( m_upVector );
+	return(m_upVector);
 }
 
 float Viewer::getFieldOfView() const {
-	return( m_fieldOfView );
+	return(m_fieldOfView);
 }
 
 float Viewer::getAspectRatio() const {
-	return( m_aspectRatio );
+	return(m_aspectRatio);
 }
 
 glm::vec3 Viewer::getViewDir() const {
-	return( m_viewDir );
+	return(m_viewDir);
 }
 
 glm::vec3 Viewer::getImagePlaneHorizDir() const {
-	return( m_imagePlaneHorizDir );
+	return(m_imagePlaneHorizDir);
 }
 
 glm::vec3 Viewer::getImagePlaneVertDir() const {
-	return( m_imagePlaneVertDir );
+	return(m_imagePlaneVertDir);
 }
 
 void Viewer::setAspectRatio(float aspectRatio) {
-	if( m_aspectRatio != aspectRatio ) {
+	if (m_aspectRatio != aspectRatio) {
 		m_aspectRatio = aspectRatio;
 		getFrustrumInfo();
 	}
 }
 
 void Viewer::setFieldOfView(float fieldOfView) {
-	if( m_fieldOfView != fieldOfView ) {
+	if (m_fieldOfView != fieldOfView) {
 		m_fieldOfView = fieldOfView;
 		getFrustrumInfo();
 	}
@@ -200,6 +200,6 @@ void Viewer::getFrustrumInfo() {
 	m_imagePlaneHorizDir = glm::normalize(m_imagePlaneHorizDir);
 
 	// Get the view plane width and height at the view center.
-	m_displayHeight = 2.0 * glm::length(m_viewCenter-m_viewPoint) * tan(0.5*m_fieldOfView);
+	m_displayHeight = 2.0 * glm::length(m_viewCenter - m_viewPoint) * tan(0.5 * m_fieldOfView);
 	m_displayWidth = m_displayHeight * m_aspectRatio;
 }

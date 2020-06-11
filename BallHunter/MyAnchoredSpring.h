@@ -20,15 +20,27 @@
 namespace cyclone {
 	class MyAnchoredSpring : public ParticleForceGenerator
 	{
-	protected:
-		Vector3 *anchor; /** Anchor position. */
+	public:
+
+
+		//==================== Construction/Destruction methods ====================//
+
+
+		MyAnchoredSpring() = default;
+		MyAnchoredSpring(Vector3* anchor, double springConstant, double restLength);
+
+
+		//==================== Core methods ====================//
+
+
+		virtual void updateForce(Particle* particle, real duration);
+
+
+		//==================== VARIABLES ====================//
+
+
+		Vector3* anchor; /** Anchor position. */
 		double springConstant; /** spring constant. */
 		double restLength; /** rest length. */
-
-	public:
-		MyAnchoredSpring() = default;
-		MyAnchoredSpring(Vector3 *anchor, double springConstant, double restLength);
-		const Vector3* getAnchor() const { return anchor; }
-		virtual void updateForce(Particle *particle, real duration);
 	};
 }

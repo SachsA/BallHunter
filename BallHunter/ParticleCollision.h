@@ -4,9 +4,23 @@ namespace cyclone {
 	class ParticleCollision : public ParticleLink
 	{
 	public:
-		double size; //particle size
-	public:
+
+
+		//==================== Construction/Destruction methods ====================//
+
+
 		ParticleCollision(double size);
-		virtual unsigned addContact(ParticleContact *contact, unsigned limit) const;
+
+
+		//==================== Core methods ====================//
+
+
+		virtual unsigned addContact(ParticleContact* contact, unsigned limit) const;
+
+
+		//==================== VARIABLES ====================//
+
+
+		double size; //particle size
 	};
 }

@@ -21,14 +21,28 @@ namespace cyclone {
 	class MyParticleBuoyancy
 	{
 	public:
-		MyParticleBuoyancy() = default;
+
+
+		//==================== Construction/Destruction methods ====================//
+
+
 		MyParticleBuoyancy::MyParticleBuoyancy(float m_size, float mass, real maxDepth, real volume, real waterHeight, real liquidDensity);
+		MyParticleBuoyancy() = default;
 		~MyParticleBuoyancy() = default;
-		
-		void updateForce(Particle *particle, real duration);
+
+
+		//==================== Core methods ====================//
+
+
+		void updateForce(Particle* particle, real duration);
+
+
+		//==================== VARIABLES ====================//
+
 
 		float m_size;
 		float m_mass;
+
 		real maxDepth;
 		real volume;
 		real waterHeight;

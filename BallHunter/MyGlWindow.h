@@ -24,72 +24,99 @@
 #include "MyGroundContact.h"
 
 class MyGlWindow : public Fl_Gl_Window {
-	public:
-		MyGlWindow(int x, int y, int w, int h);
+public:
 
-		std::vector<Vec3f *> history;
 
-		int run;
-		int selected = -1;
-		int windBlowing;
-		Fl_Slider* time;
+	//==================== Construction/Destruction methods ====================//
 
-		float size;
 
-		cyclone::Vector3 previousPoint;
+	MyGlWindow(int x, int y, int w, int h);
+	void createMovers();
 
-		cyclone::MyGroundContact *groundContact;
 
-		std::vector<cyclone::ParticleRod *> rods;
-		std::vector<cyclone::ParticleCable *> cables;
-		std::vector<cyclone::ParticleCableConstraint *> supports;
+	//==================== Setup methods ====================//
 
-		//If you want to attach movers between each other => set to true
-		bool moversBetweenMovers = false;
-		//If you want to attach movers to the anchor => set to true
-		bool moversToAnchor = false;
-		//If you want to have water and buoyancy => set to true
-		bool buoyancy = false;
 
-		cyclone::ParticleWorld *m_world;
+	void setupProjection(int clearProjection = 1);
+	void setupLight(float x, float y, float z);
 
-		void createMovers();
-		
-		void update();
-		void drawWall();
-		void doPick();
-		void reset();
+	void setupGround();
+	void setupCollisions();
+	void setupMoversBetweenMovers();
+	void setupMoversToAnchor();
+	void setupBuoyancy();
 
-		void setupGround();
-		void setupCables();
-		void setupRods();
-		void setupCableConstraints();
-		void setupCollisions();
+	void setupCables();
+	void setupRods();
+	void setupCableConstraints();
 
-		void attachMultipleMovers();
-		void attachMoversToAnchor(cyclone::Vector3 *anchor);
-		void setMoversBuoyancy();
-	private:
-		void draw();
 
-		void drawAxises();
+	//==================== Core methods ====================//
 
-		void drawRods(int shadow);
-		void drawCables(int shadow);
-		void drawSupports(int shadow);
-		void drawMovers(int shadow);
 
-		void drawWaterTank();
-		
-		int handle(int);
-		
-		void setProjection(int clearProjection = 1);
-		void getMouseNDC(float& x, float& y);
-		void setupLight(float x, float y, float z);
+	void update();
+	void reset();
 
-		float fieldOfView;
-		Viewer *m_viewer;
-		
-		MoversContainer *m_container;
+
+	//==================== Draw methods ====================//
+
+
+	void draw();
+	void drawAxises();
+	void drawWall();
+
+	void drawMovers(int shadow);
+
+	void drawRods(int shadow);
+	void drawCables(int shadow);
+	void drawSupports(int shadow);
+
+	void drawAnchor();
+	void drawWaterTank();
+
+
+	//==================== Mouse handling methods ====================//
+
+
+	void getMouseNDC(float& x, float& y);
+	void doPick();
+
+	int handle(int);
+
+
+	//==================== VARIABLES ====================//
+
+
+	int run;
+	int selected = -1;
+
+	float fieldOfView;
+	float size;
+
+	bool windBlowing;
+
+	//If you want to attach movers between each other
+	bool moversBetweenMovers = false;
+	//If you want to attach movers to the anchor
+	bool moversToAnchor = false;
+	//If you want to have water and buoyancy
+	bool buoyancy = false;
+
+	Viewer* m_viewer;
+
+	Fl_Slider* time;
+
+	std::vector<Vec3f*> history;
+
+	cyclone::Vector3 previousPoint;
+
+	cyclone::ParticleWorld* m_world;
+
+	cyclone::MyGroundContact* groundContact;
+
+	MoversContainer* m_container;
+
+	std::vector<cyclone::ParticleRod*> rods;
+	std::vector<cyclone::ParticleCable*> cables;
+	std::vector<cyclone::ParticleCableConstraint*> supports;
 };
-

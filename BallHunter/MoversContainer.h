@@ -22,32 +22,54 @@
 class MoversContainer
 {
 public:
+
+
+	//==================== Construction/Destruction methods ====================//
+
+
 	MoversContainer(bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy);
 	MoversContainer() = default;
 	~MoversContainer() = default;
-	
-	void setIsConnectionToMovers(bool isConnectionToMovers);
-	void setIsConnectionToAnchor(bool isConnectionToAnchor);
-	void setIsBuoyancy(bool isBuoyancy);
 
-	void initForces();
+
+	//==================== Setup methods ====================//
+
+
+	void initForcesBetweenMovers();
 	void initForcesAnchored();
-	
+
+
+	//==================== Core methods ====================//
+
+
 	void reset();
-	
+
+
+	//==================== Effect methods ====================//
+
+
+	void attachMoversToEachOther(float duration);
+	void attachMoversToAnchor(float duration);
+	void floating(float duration);
 	void windBlow();
-	
-	void update(float duration);
-	
+
+
+	//==================== Draw methods ====================//
+
+
 	void draw(int shadow);
 	void drawConnection();
-	void drawSpringWithAnchor();
+	void drawSpringsToAnchor();
 	void drawStick();
+
+
+	//==================== VARIABLES ====================//
+
 
 	bool m_isConnectionToMovers;
 	bool m_isConnectionToAnchor;
 	bool m_isBuoyancy;
 
-	cyclone::ParticleForceRegistry * m_forces;
-	std::vector<Mover *> m_movers;
+	cyclone::ParticleForceRegistry* m_forces;
+	std::vector<Mover*> m_movers;
 };

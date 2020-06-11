@@ -4,19 +4,27 @@
 
 using namespace cyclone;
 
-void MyGroundContact::init(cyclone::Particle *p, double size)
+
+//==================== Init methods ====================//
+
+
+void MyGroundContact::init(cyclone::Particle* p, double size)
 {
 	if (p)
 		particles.emplace_back(p);
 	this->size = size;
 }
 
-unsigned MyGroundContact::addContact(cyclone::ParticleContact *contact, unsigned limit) const
+
+//==================== Core methods ====================//
+
+
+unsigned MyGroundContact::addContact(cyclone::ParticleContact* contact, unsigned limit) const
 {
 	unsigned count = 0;
 
 	for (int i = 0; i < particles.size(); i++) {
-		cyclone::Particle *p = particles[i];
+		cyclone::Particle* p = particles[i];
 		cyclone::real y = p->getPosition().y;
 
 		//If collision

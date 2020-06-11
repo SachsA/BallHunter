@@ -2,6 +2,10 @@
 
 using namespace cyclone;
 
+
+//==================== Construction/Destruction methods ====================//
+
+
 MyParticleBuoyancy::MyParticleBuoyancy(float size, float mass, real maxDepth, real volume, real waterHeight, real liquidDensity)
 	:
 	m_size(size), m_mass(mass), maxDepth(maxDepth), volume(volume),
@@ -9,7 +13,10 @@ MyParticleBuoyancy::MyParticleBuoyancy(float size, float mass, real maxDepth, re
 {}
 
 
-void MyParticleBuoyancy::updateForce(Particle *particle, real duration)
+//==================== Core methods ====================//
+
+
+void MyParticleBuoyancy::updateForce(Particle* particle, real duration)
 {
 	cyclone::Vector3 force(0, 0, 0);
 	cyclone::Vector3 pos = particle->getPosition();
@@ -20,7 +27,7 @@ void MyParticleBuoyancy::updateForce(Particle *particle, real duration)
 
 	if (immergedPos < 0)
 		return;
-	
+
 	cyclone::real d = immergedPos / (2 * m_size);
 
 	if (d < 0)

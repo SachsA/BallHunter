@@ -1,4 +1,4 @@
-// the main routine makes the window, and then runs an even loop
+// The main routine makes the window, and then runs an even loop
 // until the window is closed
 #include <windows.h>
 #include <iostream>
@@ -15,11 +15,21 @@
 #include "MyGlWindow.h"
 
 
-Fl_Group* widgets;
+//==================== Windows Constants ====================//
 
 
 long lastRedraw;
 int frameRate = 60;
+
+
+//==================== UI Constants ====================//
+
+
+Fl_Group* widgets;
+
+
+//==================== Buttons ====================//
+
 
 void changeFrameCB(Fl_Widget * w, void* data)
 {
@@ -31,7 +41,6 @@ void changeFrameCB(Fl_Widget * w, void* data)
 	MyGlWindow * win = (MyGlWindow *)data;
 	win->redraw();
 }
-
 
 void idleCB(void* w)
 {
@@ -68,17 +77,21 @@ void but_cb_windBlow(Fl_Widget* o, void*data)
 	Fl_Button* b = (Fl_Button*)o;
 	MyGlWindow * win = (MyGlWindow *)data;
 	if (b->value())
-		win->windBlowing = 1;
+		win->windBlowing = true;
 	else
-		win->windBlowing = 0;
+		win->windBlowing = false;
 	win->damage(1);
 }
+
+
+//==================== MAIN ====================//
+
 
 int main()
 {
 	Fl::scheme("plastic"); // plastic
-	int width = 800;
-	int height = 800;
+	int width = 1280;
+	int height = 720;
 	
 	Fl_Double_Window* wind = new Fl_Double_Window(100, 100, width, height, "Ball Hunter by SACHS_A");
 
@@ -119,4 +132,3 @@ int main()
 
 	return 1;
 }
-

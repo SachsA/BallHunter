@@ -1,33 +1,32 @@
 /************************************************************************
-     File:        3DUtils.cpp
+	 File:        3DUtils.cpp
 
-     Author:     
-                  Michael Gleicher, gleicher@cs.wisc.edu
-     Modifier
-                  Yu-Chi Lai, yu-chi@cs.wisc.edu
-     
-     Comment:     some useful routines for writing 3D interactive programs
-                  written for CS638 - Michael Gleicher, November 1999
-                  re-written and expanded, October 2005
+	 Author:
+				  Michael Gleicher, gleicher@cs.wisc.edu
+	 Modifier
+				  Yu-Chi Lai, yu-chi@cs.wisc.edu
+
+	 Comment:     some useful routines for writing 3D interactive programs
+				  written for CS638 - Michael Gleicher, November 1999
+				  re-written and expanded, October 2005
 
 									Routines to draw objects
 									- drawCube
 									- drawFloor
-   
- 		 Note:        The utilities in this file are meant to be an example for
+
+		 Note:        The utilities in this file are meant to be an example for
 									CS559 students to refer to. please follow the course policy on
 									using example code!
-     Platform:    Visio Studio.Net 2003
+	 Platform:    Visio Studio.Net 2003
 *************************************************************************/
 #pragma once
-
 
 //************************************************************************
 // draw a little cube centered
 //************************************************************************
 // Note: we pass the size of the cube (rather than using a scale
 //       transform) since we want our normals to stay unit length if possible
-void drawCube(float l,float l2,float l3);
+void drawCube(float l, float l2, float l3);
 void drawCube2(float x, float y, float z, float l);
 //************************************************************************
 // draw a ground plane
@@ -72,8 +71,8 @@ void unsetupShadows(void);
 // it is in 3D. of course, its not in one place, its a line
 // this function gets that ray for you (well, it gets 2 points on the line)
 int getMouseLine(double& p1x, double& p1y, double& p1z,
-								 double& p2x, double& p2y, double& p2z);
-			  
+	double& p2x, double& p2y, double& p2z);
+
 //************************************************************************
 //
 // * When you have a mouse line, you want to pick a point where you think the user 
@@ -89,8 +88,8 @@ int getMouseLine(double& p1x, double& p1y, double& p1z,
 //         the plane is. 
 //      b. r is the resulting position. it will share 1 of its coordinates
 //         with l, but will be on the line
-void mousePoleGo( double r1x, double r1y, double r1z,
-									double r2x, double r2y, double r2z,
-									double lx, double ly, double lz, 
-									double &rx, double &ry, double &rz,
-									bool elevator);
+void mousePoleGo(double r1x, double r1y, double r1z,
+	double r2x, double r2y, double r2z,
+	double lx, double ly, double lz,
+	double& rx, double& ry, double& rz,
+	bool elevator);

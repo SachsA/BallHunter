@@ -21,7 +21,7 @@
 #include <GL/gl.h>
 #endif
 
-/* define APIENTRY and CALLBACK to null string if we aren't on Win32 */
+   /* define APIENTRY and CALLBACK to null string if we aren't on Win32 */
 #if !defined(WIN32)
 #define APIENTRY
 #define CALLBACK
@@ -31,64 +31,64 @@
 extern "C" {
 #endif
 
-/**
- GLUT API revision history:
- 
- GLUT_API_VERSION is updated to reflect incompatible GLUT
- API changes (interface changes, semantic changes, deletions,
- or additions).
- 
- GLUT_API_VERSION=1  First public release of GLUT.  11/29/94
+	/**
+	 GLUT API revision history:
 
- GLUT_API_VERSION=2  Added support for OpenGL/GLX multisampling,
- extension.  Supports new input devices like tablet, dial and button
- box, and Spaceball.  Easy to query OpenGL extensions.
+	 GLUT_API_VERSION is updated to reflect incompatible GLUT
+	 API changes (interface changes, semantic changes, deletions,
+	 or additions).
 
- GLUT_API_VERSION=3  glutMenuStatus added.
+	 GLUT_API_VERSION=1  First public release of GLUT.  11/29/94
 
- GLUT_API_VERSION=4  glutInitDisplayString, glutWarpPointer,
- glutBitmapLength, glutStrokeLength, glutWindowStatusFunc, dynamic
- video resize subAPI, glutPostWindowRedisplay (NOT FINALIZED!).
-**/
+	 GLUT_API_VERSION=2  Added support for OpenGL/GLX multisampling,
+	 extension.  Supports new input devices like tablet, dial and button
+	 box, and Spaceball.  Easy to query OpenGL extensions.
+
+	 GLUT_API_VERSION=3  glutMenuStatus added.
+
+	 GLUT_API_VERSION=4  glutInitDisplayString, glutWarpPointer,
+	 glutBitmapLength, glutStrokeLength, glutWindowStatusFunc, dynamic
+	 video resize subAPI, glutPostWindowRedisplay (NOT FINALIZED!).
+	**/
 #ifndef GLUT_API_VERSION  /* allow this to be overriden */
 #define GLUT_API_VERSION        3
 #endif
 
-/**
- GLUT implementation revision history:
- 
- GLUT_XLIB_IMPLEMENTATION is updated to reflect both GLUT
- API revisions and implementation revisions (ie, bug fixes).
+	/**
+	 GLUT implementation revision history:
 
- GLUT_XLIB_IMPLEMENTATION=1  mjk's first public release of
- GLUT Xlib-based implementation.  11/29/94
+	 GLUT_XLIB_IMPLEMENTATION is updated to reflect both GLUT
+	 API revisions and implementation revisions (ie, bug fixes).
 
- GLUT_XLIB_IMPLEMENTATION=2  mjk's second public release of
- GLUT Xlib-based implementation providing GLUT version 2 
- interfaces.
+	 GLUT_XLIB_IMPLEMENTATION=1  mjk's first public release of
+	 GLUT Xlib-based implementation.  11/29/94
 
- GLUT_XLIB_IMPLEMENTATION=3  mjk's GLUT 2.2 images. 4/17/95
+	 GLUT_XLIB_IMPLEMENTATION=2  mjk's second public release of
+	 GLUT Xlib-based implementation providing GLUT version 2
+	 interfaces.
 
- GLUT_XLIB_IMPLEMENTATION=4  mjk's GLUT 2.3 images. 6/?/95
+	 GLUT_XLIB_IMPLEMENTATION=3  mjk's GLUT 2.2 images. 4/17/95
 
- GLUT_XLIB_IMPLEMENTATION=5  mjk's GLUT 3.0 images. 10/?/95
+	 GLUT_XLIB_IMPLEMENTATION=4  mjk's GLUT 2.3 images. 6/?/95
 
- GLUT_XLIB_IMPLEMENTATION=7  mjk's GLUT 3.1+ with glutWarpPoitner.  7/24/96
+	 GLUT_XLIB_IMPLEMENTATION=5  mjk's GLUT 3.0 images. 10/?/95
 
- GLUT_XLIB_IMPLEMENTATION=8  mjk's GLUT 3.1+ with glutWarpPoitner
- and video resize.  1/3/97
+	 GLUT_XLIB_IMPLEMENTATION=7  mjk's GLUT 3.1+ with glutWarpPoitner.  7/24/96
 
- GLUT_XLIB_IMPLEMENTATION=9 mjk's GLUT 3.4 release with early GLUT 4 routines.
+	 GLUT_XLIB_IMPLEMENTATION=8  mjk's GLUT 3.1+ with glutWarpPoitner
+	 and video resize.  1/3/97
 
- GLUT_XLIB_IMPLEMENTATION=11 Mesa 2.5's GLUT 3.6 release.
+	 GLUT_XLIB_IMPLEMENTATION=9 mjk's GLUT 3.4 release with early GLUT 4 routines.
 
- GLUT_XLIB_IMPLEMENTATION=12 mjk's GLUT 3.6 release with early GLUT 4 routines + signal handling.
-**/
+	 GLUT_XLIB_IMPLEMENTATION=11 Mesa 2.5's GLUT 3.6 release.
+
+	 GLUT_XLIB_IMPLEMENTATION=12 mjk's GLUT 3.6 release with early GLUT 4 routines + signal handling.
+	**/
 #ifndef GLUT_XLIB_IMPLEMENTATION  /* Allow this to be overriden. */
 #define GLUT_XLIB_IMPLEMENTATION    12
 #endif
 
-/* Display mode bit masks. */
+	/* Display mode bit masks. */
 #define GLUT_RGB            0
 #define GLUT_RGBA            GLUT_RGB
 #define GLUT_INDEX            1
@@ -185,23 +185,23 @@ extern "C" {
 #endif
 #else
 /* Stroke font opaque addresses (use constants instead in source code). */
-extern void *glutStrokeRoman;
-extern void *glutStrokeMonoRoman;
+	extern void* glutStrokeRoman;
+	extern void* glutStrokeMonoRoman;
 
-/* Stroke font constants (use these in GLUT program). */
+	/* Stroke font constants (use these in GLUT program). */
 #define GLUT_STROKE_ROMAN        (&glutStrokeRoman)
 #define GLUT_STROKE_MONO_ROMAN        (&glutStrokeMonoRoman)
 
 /* Bitmap font opaque addresses (use constants instead in source code). */
-extern void *glutBitmap9By15;
-extern void *glutBitmap8By13;
-extern void *glutBitmapTimesRoman10;
-extern void *glutBitmapTimesRoman24;
-extern void *glutBitmapHelvetica10;
-extern void *glutBitmapHelvetica12;
-extern void *glutBitmapHelvetica18;
+	extern void* glutBitmap9By15;
+	extern void* glutBitmap8By13;
+	extern void* glutBitmapTimesRoman10;
+	extern void* glutBitmapTimesRoman24;
+	extern void* glutBitmapHelvetica10;
+	extern void* glutBitmapHelvetica12;
+	extern void* glutBitmapHelvetica18;
 
-/* Bitmap font constants (use these in GLUT program). */
+	/* Bitmap font constants (use these in GLUT program). */
 #define GLUT_BITMAP_9_BY_15        (&glutBitmap9By15)
 #define GLUT_BITMAP_8_BY_13        (&glutBitmap8By13)
 #define GLUT_BITMAP_TIMES_ROMAN_10    (&glutBitmapTimesRoman10)
@@ -336,154 +336,154 @@ extern void *glutBitmapHelvetica18;
 #endif
 
 /* GLUT initialization sub-API. */
-extern void APIENTRY glutInit(int *argcp, char **argv);
-extern void APIENTRY glutInitDisplayMode(unsigned int mode);
+	extern void APIENTRY glutInit(int* argcp, char** argv);
+	extern void APIENTRY glutInitDisplayMode(unsigned int mode);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-extern void APIENTRY glutInitDisplayString(const char *string);
+	extern void APIENTRY glutInitDisplayString(const char* string);
 #endif
-extern void APIENTRY glutInitWindowPosition(int x, int y);
-extern void APIENTRY glutInitWindowSize(int width, int height);
-extern void APIENTRY glutMainLoop(void);
+	extern void APIENTRY glutInitWindowPosition(int x, int y);
+	extern void APIENTRY glutInitWindowSize(int width, int height);
+	extern void APIENTRY glutMainLoop(void);
 
-/* GLUT window sub-API. */
-extern int APIENTRY glutCreateWindow(const char *title);
-extern int APIENTRY glutCreateSubWindow(int win, int x, int y, int width, int height);
-extern void APIENTRY glutDestroyWindow(int win);
-extern void APIENTRY glutPostRedisplay(void);
+	/* GLUT window sub-API. */
+	extern int APIENTRY glutCreateWindow(const char* title);
+	extern int APIENTRY glutCreateSubWindow(int win, int x, int y, int width, int height);
+	extern void APIENTRY glutDestroyWindow(int win);
+	extern void APIENTRY glutPostRedisplay(void);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
-extern void APIENTRY glutPostWindowRedisplay(int win);
+	extern void APIENTRY glutPostWindowRedisplay(int win);
 #endif
-extern void APIENTRY glutSwapBuffers(void);
-extern int APIENTRY glutGetWindow(void);
-extern void APIENTRY glutSetWindow(int win);
-extern void APIENTRY glutSetWindowTitle(const char *title);
-extern void APIENTRY glutSetIconTitle(const char *title);
-extern void APIENTRY glutPositionWindow(int x, int y);
-extern void APIENTRY glutReshapeWindow(int width, int height);
-extern void APIENTRY glutPopWindow(void);
-extern void APIENTRY glutPushWindow(void);
-extern void APIENTRY glutIconifyWindow(void);
-extern void APIENTRY glutShowWindow(void);
-extern void APIENTRY glutHideWindow(void);
+	extern void APIENTRY glutSwapBuffers(void);
+	extern int APIENTRY glutGetWindow(void);
+	extern void APIENTRY glutSetWindow(int win);
+	extern void APIENTRY glutSetWindowTitle(const char* title);
+	extern void APIENTRY glutSetIconTitle(const char* title);
+	extern void APIENTRY glutPositionWindow(int x, int y);
+	extern void APIENTRY glutReshapeWindow(int width, int height);
+	extern void APIENTRY glutPopWindow(void);
+	extern void APIENTRY glutPushWindow(void);
+	extern void APIENTRY glutIconifyWindow(void);
+	extern void APIENTRY glutShowWindow(void);
+	extern void APIENTRY glutHideWindow(void);
 #if (GLUT_API_VERSION >= 3)
-extern void APIENTRY glutFullScreen(void);
-extern void APIENTRY glutSetCursor(int cursor);
+	extern void APIENTRY glutFullScreen(void);
+	extern void APIENTRY glutSetCursor(int cursor);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-extern void APIENTRY glutWarpPointer(int x, int y);
+	extern void APIENTRY glutWarpPointer(int x, int y);
 #endif
 
-/* GLUT overlay sub-API. */
-extern void APIENTRY glutEstablishOverlay(void);
-extern void APIENTRY glutRemoveOverlay(void);
-extern void APIENTRY glutUseLayer(GLenum layer);
-extern void APIENTRY glutPostOverlayRedisplay(void);
+	/* GLUT overlay sub-API. */
+	extern void APIENTRY glutEstablishOverlay(void);
+	extern void APIENTRY glutRemoveOverlay(void);
+	extern void APIENTRY glutUseLayer(GLenum layer);
+	extern void APIENTRY glutPostOverlayRedisplay(void);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 11)
-extern void APIENTRY glutPostWindowOverlayRedisplay(int win);
+	extern void APIENTRY glutPostWindowOverlayRedisplay(int win);
 #endif
-extern void APIENTRY glutShowOverlay(void);
-extern void APIENTRY glutHideOverlay(void);
+	extern void APIENTRY glutShowOverlay(void);
+	extern void APIENTRY glutHideOverlay(void);
 #endif
 
-/* GLUT menu sub-API. */
-extern int APIENTRY glutCreateMenu(void (*)(int));
-extern void APIENTRY glutDestroyMenu(int menu);
-extern int APIENTRY glutGetMenu(void);
-extern void APIENTRY glutSetMenu(int menu);
-extern void APIENTRY glutAddMenuEntry(const char *label, int value);
-extern void APIENTRY glutAddSubMenu(const char *label, int submenu);
-extern void APIENTRY glutChangeToMenuEntry(int item, const char *label, int value);
-extern void APIENTRY glutChangeToSubMenu(int item, const char *label, int submenu);
-extern void APIENTRY glutRemoveMenuItem(int item);
-extern void APIENTRY glutAttachMenu(int button);
-extern void APIENTRY glutDetachMenu(int button);
+	/* GLUT menu sub-API. */
+	extern int APIENTRY glutCreateMenu(void (*)(int));
+	extern void APIENTRY glutDestroyMenu(int menu);
+	extern int APIENTRY glutGetMenu(void);
+	extern void APIENTRY glutSetMenu(int menu);
+	extern void APIENTRY glutAddMenuEntry(const char* label, int value);
+	extern void APIENTRY glutAddSubMenu(const char* label, int submenu);
+	extern void APIENTRY glutChangeToMenuEntry(int item, const char* label, int value);
+	extern void APIENTRY glutChangeToSubMenu(int item, const char* label, int submenu);
+	extern void APIENTRY glutRemoveMenuItem(int item);
+	extern void APIENTRY glutAttachMenu(int button);
+	extern void APIENTRY glutDetachMenu(int button);
 
-/* GLUT  sub-API. */
-extern void APIENTRY glutDisplayFunc(void (*)(void));
-extern void APIENTRY glutReshapeFunc(void (*)(int width, int height));
-extern void APIENTRY glutKeyboardFunc(void (*)(unsigned char key, int x, int y));
-extern void APIENTRY glutMouseFunc(void (*)(int button, int state, int x, int y));
-extern void APIENTRY glutMotionFunc(void (*)(int x, int y));
-extern void APIENTRY glutPassiveMotionFunc(void (*)(int x, int y));
-extern void APIENTRY glutEntryFunc(void (*)(int state));
-extern void APIENTRY glutVisibilityFunc(void (*)(int state));
-extern void APIENTRY glutIdleFunc(void (*)(void));
-extern void APIENTRY glutTimerFunc(unsigned int millis, void (*)(int value), int value);
-extern void APIENTRY glutMenuStateFunc(void (*)(int state));
+	/* GLUT  sub-API. */
+	extern void APIENTRY glutDisplayFunc(void (*)(void));
+	extern void APIENTRY glutReshapeFunc(void (*)(int width, int height));
+	extern void APIENTRY glutKeyboardFunc(void (*)(unsigned char key, int x, int y));
+	extern void APIENTRY glutMouseFunc(void (*)(int button, int state, int x, int y));
+	extern void APIENTRY glutMotionFunc(void (*)(int x, int y));
+	extern void APIENTRY glutPassiveMotionFunc(void (*)(int x, int y));
+	extern void APIENTRY glutEntryFunc(void (*)(int state));
+	extern void APIENTRY glutVisibilityFunc(void (*)(int state));
+	extern void APIENTRY glutIdleFunc(void (*)(void));
+	extern void APIENTRY glutTimerFunc(unsigned int millis, void (*)(int value), int value);
+	extern void APIENTRY glutMenuStateFunc(void (*)(int state));
 #if (GLUT_API_VERSION >= 2)
-extern void APIENTRY glutSpecialFunc(void (*)(int key, int x, int y));
-extern void APIENTRY glutSpaceballMotionFunc(void (*)(int x, int y, int z));
-extern void APIENTRY glutSpaceballRotateFunc(void (*)(int x, int y, int z));
-extern void APIENTRY glutSpaceballButtonFunc(void (*)(int button, int state));
-extern void APIENTRY glutButtonBoxFunc(void (*)(int button, int state));
-extern void APIENTRY glutDialsFunc(void (*)(int dial, int value));
-extern void APIENTRY glutTabletMotionFunc(void (*)(int x, int y));
-extern void APIENTRY glutTabletButtonFunc(void (*)(int button, int state, int x, int y));
+	extern void APIENTRY glutSpecialFunc(void (*)(int key, int x, int y));
+	extern void APIENTRY glutSpaceballMotionFunc(void (*)(int x, int y, int z));
+	extern void APIENTRY glutSpaceballRotateFunc(void (*)(int x, int y, int z));
+	extern void APIENTRY glutSpaceballButtonFunc(void (*)(int button, int state));
+	extern void APIENTRY glutButtonBoxFunc(void (*)(int button, int state));
+	extern void APIENTRY glutDialsFunc(void (*)(int dial, int value));
+	extern void APIENTRY glutTabletMotionFunc(void (*)(int x, int y));
+	extern void APIENTRY glutTabletButtonFunc(void (*)(int button, int state, int x, int y));
 #if (GLUT_API_VERSION >= 3)
-extern void APIENTRY glutMenuStatusFunc(void (*)(int status, int x, int y));
-extern void APIENTRY glutOverlayDisplayFunc(void (*)(void));
+	extern void APIENTRY glutMenuStatusFunc(void (*)(int status, int x, int y));
+	extern void APIENTRY glutOverlayDisplayFunc(void (*)(void));
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-extern void APIENTRY glutWindowStatusFunc(void (*)(int state));
+	extern void APIENTRY glutWindowStatusFunc(void (*)(int state));
 #endif
 #endif
 #endif
 
-/* GLUT color index sub-API. */
-extern void APIENTRY glutSetColor(int, GLfloat red, GLfloat green, GLfloat blue);
-extern GLfloat APIENTRY glutGetColor(int ndx, int component);
-extern void APIENTRY glutCopyColormap(int win);
+	/* GLUT color index sub-API. */
+	extern void APIENTRY glutSetColor(int, GLfloat red, GLfloat green, GLfloat blue);
+	extern GLfloat APIENTRY glutGetColor(int ndx, int component);
+	extern void APIENTRY glutCopyColormap(int win);
 
-/* GLUT state retrieval sub-API. */
-extern int APIENTRY glutGet(GLenum type);
-extern int APIENTRY glutDeviceGet(GLenum type);
+	/* GLUT state retrieval sub-API. */
+	extern int APIENTRY glutGet(GLenum type);
+	extern int APIENTRY glutDeviceGet(GLenum type);
 #if (GLUT_API_VERSION >= 2)
-/* GLUT extension support sub-API */
-extern int APIENTRY glutExtensionSupported(const char *name);
+	/* GLUT extension support sub-API */
+	extern int APIENTRY glutExtensionSupported(const char* name);
 #endif
 #if (GLUT_API_VERSION >= 3)
-extern int APIENTRY glutGetModifiers(void);
-extern int APIENTRY glutLayerGet(GLenum type);
+	extern int APIENTRY glutGetModifiers(void);
+	extern int APIENTRY glutLayerGet(GLenum type);
 #endif
 
-/* GLUT font sub-API */
-extern void APIENTRY glutBitmapCharacter(void *font, int character);
-extern int APIENTRY glutBitmapWidth(void *font, int character);
-extern void APIENTRY glutStrokeCharacter(void *font, int character);
-extern int APIENTRY glutStrokeWidth(void *font, int character);
+	/* GLUT font sub-API */
+	extern void APIENTRY glutBitmapCharacter(void* font, int character);
+	extern int APIENTRY glutBitmapWidth(void* font, int character);
+	extern void APIENTRY glutStrokeCharacter(void* font, int character);
+	extern int APIENTRY glutStrokeWidth(void* font, int character);
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-extern int APIENTRY glutBitmapLength(void *font, const unsigned char *string);
-extern int APIENTRY glutStrokeLength(void *font, const unsigned char *string);
+	extern int APIENTRY glutBitmapLength(void* font, const unsigned char* string);
+	extern int APIENTRY glutStrokeLength(void* font, const unsigned char* string);
 #endif
 
-/* GLUT pre-built models sub-API */
-extern void APIENTRY glutWireSphere(GLdouble radius, GLint slices, GLint stacks);
-extern void APIENTRY glutSolidSphere(GLdouble radius, GLint slices, GLint stacks);
-extern void APIENTRY glutWireCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
-extern void APIENTRY glutSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
-extern void APIENTRY glutWireCube(GLdouble size);
-extern void APIENTRY glutSolidCube(GLdouble size);
-extern void APIENTRY glutWireTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
-extern void APIENTRY glutSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
-extern void APIENTRY glutWireDodecahedron(void);
-extern void APIENTRY glutSolidDodecahedron(void);
-extern void APIENTRY glutWireTeapot(GLdouble size);
-extern void APIENTRY glutSolidTeapot(GLdouble size);
-extern void APIENTRY glutWireOctahedron(void);
-extern void APIENTRY glutSolidOctahedron(void);
-extern void APIENTRY glutWireTetrahedron(void);
-extern void APIENTRY glutSolidTetrahedron(void);
-extern void APIENTRY glutWireIcosahedron(void);
-extern void APIENTRY glutSolidIcosahedron(void);
+	/* GLUT pre-built models sub-API */
+	extern void APIENTRY glutWireSphere(GLdouble radius, GLint slices, GLint stacks);
+	extern void APIENTRY glutSolidSphere(GLdouble radius, GLint slices, GLint stacks);
+	extern void APIENTRY glutWireCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+	extern void APIENTRY glutSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+	extern void APIENTRY glutWireCube(GLdouble size);
+	extern void APIENTRY glutSolidCube(GLdouble size);
+	extern void APIENTRY glutWireTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
+	extern void APIENTRY glutSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
+	extern void APIENTRY glutWireDodecahedron(void);
+	extern void APIENTRY glutSolidDodecahedron(void);
+	extern void APIENTRY glutWireTeapot(GLdouble size);
+	extern void APIENTRY glutSolidTeapot(GLdouble size);
+	extern void APIENTRY glutWireOctahedron(void);
+	extern void APIENTRY glutSolidOctahedron(void);
+	extern void APIENTRY glutWireTetrahedron(void);
+	extern void APIENTRY glutSolidTetrahedron(void);
+	extern void APIENTRY glutWireIcosahedron(void);
+	extern void APIENTRY glutSolidIcosahedron(void);
 
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-/* GLUT video resize sub-API. */
-extern int APIENTRY glutVideoResizeGet(GLenum param);
-extern void APIENTRY glutSetupVideoResizing(void);
-extern void APIENTRY glutStopVideoResizing(void);
-extern void APIENTRY glutVideoResize(int x, int y, int width, int height);
-extern void APIENTRY glutVideoPan(int x, int y, int width, int height);
+	/* GLUT video resize sub-API. */
+	extern int APIENTRY glutVideoResizeGet(GLenum param);
+	extern void APIENTRY glutSetupVideoResizing(void);
+	extern void APIENTRY glutStopVideoResizing(void);
+	extern void APIENTRY glutVideoResize(int x, int y, int width, int height);
+	extern void APIENTRY glutVideoPan(int x, int y, int width, int height);
 
-/* GLUT debugging sub-API. */
-extern void APIENTRY glutReportErrors(void);
+	/* GLUT debugging sub-API. */
+	extern void APIENTRY glutReportErrors(void);
 #endif
 
 #ifdef __cplusplus

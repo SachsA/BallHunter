@@ -81,20 +81,12 @@ void MyGlWindow::createMovers()
 	m_container = new MoversContainer(moversBetweenMovers, moversToAnchor, buoyancy);
 
 	position = cyclone::Vector3(0, 15, 10);
-	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m_container->m_movers[0]->m_particle);
 	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
 	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
-
-	position = cyclone::Vector3(5, 15, 10);
-	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
-	m_container->m_movers.emplace_back(m);
-
-	m_world->getParticles().emplace_back(m_container->m_movers[1]->m_particle);
-	m_world->getForceRegistry().add(m_container->m_movers[1]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
-	m_world->getForceRegistry().add(m_container->m_movers[1]->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
 }
 
 

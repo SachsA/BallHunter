@@ -1,5 +1,13 @@
 #include "Mover.h"
 
+
+//==================== Constants ====================//
+
+
+const float degrees2Radians = R_PI / 180;
+
+
+
 //==================== Construction methods ====================//
 
 Mover::Mover(MoverType type,
@@ -61,6 +69,42 @@ void Mover::reset()
 //==================== Effect methods ====================//
 
 
+void Mover::rotate(float x, float y, float z)
+{
+	cyclone::Quaternion qX;
+	qX.r = cos(degrees2Radians * x * 0.5f);
+	cyclone::Vector3 v = cyclone::Vector3(1, 0, 0) * sin(degrees2Radians * x * 0.5f);
+	qX.i = v.x;
+	qX.j = v.y;
+	qX.k = v.z;
+	qX.normalise();
+
+	cyclone::Quaternion qY;
+	qY.r = cos(degrees2Radians * y * 0.5f);
+	v = cyclone::Vector3(0, 1, 0) * sin(degrees2Radians * y * 0.5f);
+	qY.i = v.x;
+	qY.j = v.y;
+	qY.k = v.z;
+	qY.normalise();
+
+	cyclone::Quaternion qZ;
+	qZ.r = cos(degrees2Radians * z * 0.5f);
+	v = cyclone::Vector3(1, 0, 0) * sin(degrees2Radians * z * 0.5f);
+	qZ.i = v.x;
+	qZ.j = v.y;
+	qZ.k = v.z;
+	qZ.normalise();
+
+	qY *= qZ;
+	qX *= qY;
+
+	transformMatrix.setOrientationAndPos(qX, m_position);
+}
+
+
+//==================== Effect methods ====================//
+
+
 void Mover::attachToOtherMovers(float duration)
 {
 	for (unsigned int i = 0; i < m_spring.size(); i++) {
@@ -106,6 +150,10 @@ void Mover::draw(int shadow)
 	else if (m_type == Cube)
 		drawCube();
 
+	//If you want to draw the axises of the mover
+	//if (!shadow)
+		//drawAxises();
+
 	glPopMatrix();
 }
 
@@ -146,4 +194,25 @@ void Mover::drawCube()
 
 	glMultMatrixf(mat);
 	glutSolidCube(1.0f);
+}
+
+void Mover::drawAxises()
+{
+	// Draw axises from cube
+	glLineWidth(2.0f);
+	glBegin(GL_LINES);
+	glColor3f(1, 0, 0);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 10, 0);
+
+	glColor3f(0, 1, 0);
+	glVertex3f(0, 0, 0);
+	glVertex3f(10, 0, 0);
+
+	glColor3f(0, 0, 1);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 0, 10);
+
+	glEnd();
+	glLineWidth(1.0f);
 }

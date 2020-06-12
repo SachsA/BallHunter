@@ -47,6 +47,12 @@ public:
 	//==================== Effect methods ====================//
 
 
+	void rotate(float x, float y, float z);
+
+
+	//==================== Effect methods ====================//
+
+
 	void attachToOtherMovers(float duration);
 	void attachToAnchor(float duration);
 	void floating(float duration);
@@ -61,6 +67,7 @@ public:
 
 	void getGLTransform(float matrix[16]);
 	void drawCube();
+	void drawAxises();
 
 
 	//==================== Setup methods ====================//

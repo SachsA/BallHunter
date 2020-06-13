@@ -60,7 +60,6 @@ public:
 	void draw(int shadow);
 	void drawConnection();
 	void drawSpringsToAnchor();
-	void drawStick();
 
 
 	//==================== VARIABLES ====================//

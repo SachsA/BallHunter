@@ -44,9 +44,10 @@ public:
 	void reset();
 
 
-	//==================== Effect methods ====================//
+	//==================== Transform methods ====================//
 
 
+	void translate(cyclone::Vector3 pos);
 	void rotate(float x, float y, float z);
 
 
@@ -63,10 +64,8 @@ public:
 
 
 	void draw(int shadow);
-	void drawSphere();
-
+	void drawMover();
 	void getGLTransform(float matrix[16]);
-	void drawCube();
 	void drawAxises();
 
 

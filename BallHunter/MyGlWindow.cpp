@@ -84,9 +84,9 @@ void MyGlWindow::createMovers()
 	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
-	m_world->getParticles().emplace_back(m_container->m_movers[0]->m_particle);
-	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
-	m_world->getForceRegistry().add(m_container->m_movers[0]->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+	m_world->getParticles().emplace_back(m->m_particle);
+	m_world->getForceRegistry().add(m->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
 }
 
 
@@ -382,7 +382,7 @@ void MyGlWindow::draw()
 
 	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
 
-	//Draw x, y and z axises
+	//Draw x, y and z axises of the scene
 	//drawAxises();
 
 	//draw shadow

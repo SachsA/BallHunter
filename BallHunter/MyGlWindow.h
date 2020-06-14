@@ -42,9 +42,7 @@ public:
 
 	void setupGround();
 	void setupCollisions();
-	void setupMoversBetweenMovers();
-	void setupMoversToAnchor();
-	void setupBuoyancy();
+	void setupMoversBetweenMovers(int begin, int end, float spring, int length);
 
 	void setupCables();
 	void setupRods();
@@ -67,12 +65,12 @@ public:
 
 	void drawMovers(int shadow);
 
+	void drawAnchor();
+	void drawWaterTank(int x, int y, int z);
+
 	void drawRods(int shadow);
 	void drawCables(int shadow);
 	void drawSupports(int shadow);
-
-	void drawAnchor();
-	void drawWaterTank();
 
 
 	//==================== Mouse handling methods ====================//
@@ -90,17 +88,12 @@ public:
 	int run;
 	int selected = -1;
 
+	int waterHeight = 10;
+
 	float fieldOfView;
-	float size;
 
 	bool windBlowing;
-
-	//If you want to attach movers between each other
-	bool moversBetweenMovers = false;
-	//If you want to attach movers to the anchor
-	bool moversToAnchor = false;
-	//If you want to have water and buoyancy
-	bool buoyancy = false;
+	bool isWaterDrawn = true;
 
 	Viewer* m_viewer;
 
@@ -109,6 +102,7 @@ public:
 	std::vector<Vec3f*> history;
 
 	cyclone::Vector3 previousPoint;
+	cyclone::Vector3 *anchor = new cyclone::Vector3(0, 20, 0);
 
 	cyclone::ParticleWorld* m_world;
 

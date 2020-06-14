@@ -6,6 +6,24 @@
 #include "ParticleCollision.h"
 
 
+//==================== TOOLBOX, HOW TO SETUP EFFECTS ====================//
+
+
+/*
+After creating a mover:
+
+	//Make a mover float
+	m->setupParticleBuoyancy(0, 1, waterHeight, 2);
+
+	//Attach movers together
+	setupMoversBetweenMovers(0, 1, 20, 3);
+
+	//Attach mover to the anchor
+	m->setupAnchoredConnection(anchor, 5, 5);
+	m_container->initForcesAnchored();
+*/
+
+
 //==================== Camera constants ====================//
 
 
@@ -43,26 +61,25 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	TimingData::init();
 	run = 0;
 
+	m_world = new cyclone::ParticleWorld(1000);
+
+	m_container = new MoversContainer();
+
+	groundContact = new cyclone::MyGroundContact();
+
 	//Initialize movers and values of these displayed objects
 	createMovers();
 
 	setupGround();
 	setupCollisions();
-
-	setupMoversBetweenMovers();
-	setupMoversToAnchor();
-	setupBuoyancy();
-
-	//setupCables();
-	//setupRods();
-	//setupCableConstraints();
 }
 
 void MyGlWindow::createMovers()
 {
+	//Mover's variables
 	Mover* m;
 
-	size = 2;
+	float size = 2;
 	int definition = 30;
 
 	float mass = 5.0f;
@@ -71,22 +88,21 @@ void MyGlWindow::createMovers()
 	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
 	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
 
-	Color obj_color = Color(1, 0, 0);
 	Color shadow_color = Color(0.1, 0.1, 0.1);
-
-	m_world = new cyclone::ParticleWorld(1000);
-
-	groundContact = new cyclone::MyGroundContact();
-
-	m_container = new MoversContainer(moversBetweenMovers, moversToAnchor, buoyancy);
+	Color obj_color = Color(1, 0, 0);
 
 	position = cyclone::Vector3(0, 15, 10);
-	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m->m_particle);
 	m_world->getForceRegistry().add(m->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
 	m_world->getForceRegistry().add(m->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+
+	m->setupParticleBuoyancy(0, 1, waterHeight, 2);
+
+	m->setupAnchoredConnection(anchor, 5, 5);
+	m_container->initForcesAnchored();
 }
 
 
@@ -138,14 +154,14 @@ void MyGlWindow::setupProjection(int clearProjection)
 	glViewport(0, 0, w(), h());
 	if (clearProjection)
 		glLoadIdentity();
-	// compute the aspect ratio so we don't distort things
+	//Compute the aspect ratio so we don't distort things
 	double aspect = ((double)w()) / ((double)h());
 	gluPerspective(fieldOfView, aspect, 1, 1000);
 
-	// put the camera where we want it to be
+	//Put the camera where we want it to be
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	// use the transformation in the ArcBall
+	//Use the transformation in the ArcBall
 
 	gluLookAt(
 		m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z,
@@ -160,7 +176,7 @@ void MyGlWindow::setupGround()
 {
 	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
-		groundContact->init(m_container->m_movers[i]->m_particle, size);
+		groundContact->init(m_container->m_movers[i]->m_particle, m_container->m_movers[i]->m_size);
 	}
 
 	m_world->getContactGenerators().emplace_back(groundContact);
@@ -174,8 +190,8 @@ void MyGlWindow::setupCollisions()
 			if (first == second)
 				continue;
 
-			cyclone::ParticleCollision* particleCollision = new cyclone::ParticleCollision(size);
-			particleCollision->size = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
+			double collisionSize = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
+			cyclone::ParticleCollision* particleCollision = new cyclone::ParticleCollision(collisionSize);
 
 			particleCollision->particle[0] = m_container->m_movers[first]->m_particle;
 			particleCollision->particle[1] = m_container->m_movers[second]->m_particle;
@@ -185,50 +201,15 @@ void MyGlWindow::setupCollisions()
 	}
 }
 
-void MyGlWindow::setupMoversBetweenMovers()
+void MyGlWindow::setupMoversBetweenMovers(int begin, int end, float spring, int length)
 {
-	if (moversBetweenMovers) {
-		if (m_container->m_movers.size() <= 1) {
-			moversBetweenMovers = false;
-			m_container->m_isConnectionToMovers = false;
-		}
-		else {
-			for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
-				if (i + 1 < m_container->m_movers.size()) {
-					m_container->m_movers[i]->setupConnection(m_container->m_movers[i + 1], 20, 3);
-					m_container->m_movers[i + 1]->setupConnection(m_container->m_movers[i], 20, 3);
-				}
-			}
-			m_container->initForcesBetweenMovers();
+	for (unsigned int i = begin; i < end; i++) {
+		if (i + 1 < m_container->m_movers.size()) {
+			m_container->m_movers[i]->setupConnection(m_container->m_movers[i + 1], spring, length);
+			m_container->m_movers[i + 1]->setupConnection(m_container->m_movers[i], spring, length);
 		}
 	}
-}
-
-void MyGlWindow::setupMoversToAnchor()
-{
-	cyclone::Vector3* anchor = new cyclone::Vector3(0, 20, 0);
-
-	if (moversToAnchor) {
-		if (anchor == nullptr) {
-			moversToAnchor = false;
-			m_container->m_isConnectionToAnchor = false;
-		}
-		else {
-			for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
-				m_container->m_movers[i]->setupAnchoredConnection(anchor, 5, 5);
-			}
-			m_container->initForcesAnchored();
-		}
-	}
-}
-
-void MyGlWindow::setupBuoyancy()
-{
-	if (buoyancy) {
-		for (unsigned int i = 0; i < m_container->m_movers.size(); i++) {
-			m_container->m_movers[i]->setupParticleBuoyancy(0, 1, 10, 2);
-		}
-	}
+	m_container->initForcesBetweenMovers();
 }
 
 void MyGlWindow::setupCables()
@@ -343,14 +324,9 @@ void MyGlWindow::update()
 	if (windBlowing == true)
 		m_container->windBlow();
 
-	if (buoyancy)
-		m_container->floating(duration);
-
-	if (moversBetweenMovers)
-		m_container->attachMoversToEachOther(duration);
-
-	if (moversToAnchor)
-		m_container->attachMoversToAnchor(duration);
+	m_container->floating(duration);
+	m_container->attachMoversToEachOther(duration);
+	m_container->attachMoversToAnchor(duration);
 
 	m_world->runPhysics(duration);
 }
@@ -377,7 +353,7 @@ void MyGlWindow::draw()
 	setupFloor();
 
 	glPushMatrix();
-	drawFloor(2000, 200);
+	drawFloor(2000, 1);
 	glPopMatrix();
 
 	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
@@ -399,11 +375,11 @@ void MyGlWindow::draw()
 
 	glEnable(GL_COLOR_MATERIAL);
 
-	if (moversToAnchor)
+	if (anchor)
 		drawAnchor();
 
-	if (buoyancy)
-		drawWaterTank();
+	if (isWaterDrawn)
+		drawWaterTank(500, waterHeight, 500);
 }
 
 void MyGlWindow::drawAxises()
@@ -439,13 +415,12 @@ void MyGlWindow::drawMovers(int shadow)
 
 	m_container->draw(shadow);
 
-	glBegin(GL_LINES);
-
-	drawRods(shadow);
-	drawCables(shadow);
-	drawSupports(shadow);
-
-	glEnd();
+	//Draw structures
+	//glBegin(GL_LINES);
+	//drawRods(shadow);
+	//drawCables(shadow);
+	//drawSupports(shadow);
+	//glEnd();
 
 	glLineWidth(1.0);
 }
@@ -458,9 +433,21 @@ void MyGlWindow::drawAnchor()
 	glPushMatrix();
 	glBegin(GL_LINES);
 
-	glVertex3f(0, 0, 0); //Starting point
-	glVertex3f(0, 20, 0);  //Ending point
+	glVertex3f(anchor->x, 0, anchor->z); //Starting point
+	glVertex3f(anchor->x, anchor->y, anchor->z);  //Ending point
 	glEnd();
+	glPopMatrix();
+}
+
+void MyGlWindow::drawWaterTank(int x, int y, int z)
+{
+	glDisable(GL_LIGHTING);
+	glEnable(GL_BLEND);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glPushMatrix();
+	glColor4f(0, 0, 1, 0.2f);
+	glTranslatef(0, 5.0, 0);
+	drawCube(x, y, z);
 	glPopMatrix();
 }
 
@@ -509,18 +496,6 @@ void MyGlWindow::drawSupports(int shadow)
 		glVertex3f(p0.x, p0.y, p0.z);
 		glVertex3f(p1.x, p1.y, p1.z);
 	}
-}
-
-void MyGlWindow::drawWaterTank()
-{
-	glDisable(GL_LIGHTING);
-	glEnable(GL_BLEND);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glPushMatrix();
-	glColor4f(0, 0, 1, 0.2f);
-	glTranslatef(0, 5.0, 0);
-	drawCube(100, 10, 100);
-	glPopMatrix();
 }
 
 

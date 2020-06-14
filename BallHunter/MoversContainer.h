@@ -27,8 +27,7 @@ public:
 	//==================== Construction/Destruction methods ====================//
 
 
-	MoversContainer(bool isConnectionToMovers, bool isConnectionToAnchor, bool isBuoyancy);
-	MoversContainer() = default;
+	MoversContainer();
 	~MoversContainer() = default;
 
 
@@ -64,10 +63,6 @@ public:
 
 	//==================== VARIABLES ====================//
 
-
-	bool m_isConnectionToMovers;
-	bool m_isConnectionToAnchor;
-	bool m_isBuoyancy;
 
 	cyclone::ParticleForceRegistry* m_forces;
 	std::vector<Mover*> m_movers;

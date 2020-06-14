@@ -119,12 +119,14 @@ void Mover::attachToOtherMovers(float duration)
 
 void Mover::attachToAnchor(float duration)
 {
-	m_anchored->updateForce(m_particle, duration);
+	if (m_anchored != nullptr)
+		m_anchored->updateForce(m_particle, duration);
 }
 
 void Mover::floating(float duration)
 {
-	m_buoyancy->updateForce(m_particle, duration);
+	if (m_buoyancy != nullptr)
+		m_buoyancy->updateForce(m_particle, duration);
 }
 
 void Mover::windBlow()

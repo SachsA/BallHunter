@@ -102,9 +102,9 @@ public:
 
 	std::vector<cyclone::MySpring*> m_spring;
 
-	cyclone::MyAnchoredSpring* m_anchored;
+	cyclone::MyAnchoredSpring* m_anchored = nullptr;
 
-	cyclone::MyParticleBuoyancy* m_buoyancy;
+	cyclone::MyParticleBuoyancy* m_buoyancy = nullptr;
 
 	Color m_shadow_color;
 	Color m_obj_color;

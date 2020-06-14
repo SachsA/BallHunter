@@ -91,6 +91,7 @@ void MyGlWindow::createMovers()
 	Color shadow_color = Color(0.1, 0.1, 0.1);
 	Color obj_color = Color(1, 0, 0);
 
+	//Launched Ball attached to an anchor
 	position = cyclone::Vector3(0, 15, 10);
 	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);

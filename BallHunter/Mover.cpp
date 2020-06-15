@@ -103,7 +103,9 @@ void Mover::rotate(float x, float y, float z)
 	qY *= qZ;
 	qX *= qY;
 
-	m_transformMatrix.setOrientationAndPos(qX, cyclone::Vector3(0, 0, 0));
+	m_orientation *= qX;
+
+	m_transformMatrix.setOrientationAndPos(m_orientation, cyclone::Vector3(0, 0, 0));
 }
 
 void Mover::angularMovement(float duration, float x, float y, float z, double angularDamping)

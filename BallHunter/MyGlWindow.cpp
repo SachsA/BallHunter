@@ -376,7 +376,7 @@ void MyGlWindow::draw()
 
 	glEnable(GL_COLOR_MATERIAL);
 
-	if (anchor)
+	if (isAnchorDrawn)
 		drawAnchor();
 
 	if (isWaterDrawn)

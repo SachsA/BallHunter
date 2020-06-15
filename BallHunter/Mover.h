@@ -49,6 +49,7 @@ public:
 
 	void translate(cyclone::Vector3 pos);
 	void rotate(float x, float y, float z);
+	void angularMovement(float duration, float x, float y, float z, double angularDamping);
 
 
 	//==================== Effect methods ====================//
@@ -89,11 +90,12 @@ public:
 
 	MoverType m_type;
 
-	cyclone::Quaternion orientation;
-	cyclone::Matrix4 transformMatrix;
+	cyclone::Quaternion m_orientation;
+	cyclone::Matrix4 m_transformMatrix;
 
 	cyclone::Vector3 m_position;
 	cyclone::Vector3 m_velocity;
+	cyclone::Vector3 m_rotation;
 
 	cyclone::Vector3 m_position_save;
 	cyclone::Vector3 m_velocity_save;

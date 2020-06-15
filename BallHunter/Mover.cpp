@@ -1,4 +1,4 @@
-#include "Mover.h"
+﻿#include "Mover.h"
 
 
 //==================== Constants ====================//
@@ -103,7 +103,21 @@ void Mover::rotate(float x, float y, float z)
 	qY *= qZ;
 	qX *= qY;
 
-	transformMatrix.setOrientationAndPos(qX, cyclone::Vector3(0, 0, 0));
+	m_transformMatrix.setOrientationAndPos(qX, cyclone::Vector3(0, 0, 0));
+}
+
+void Mover::angularMovement(float duration, float x, float y, float z, double angularDamping)
+{
+	cyclone::Vector3 angularAcceleration(x, y, z); //a fixed angular acc. : 𝜶 (will change it later)
+	m_rotation.addScaledVector(angularAcceleration, duration); //𝛚= 𝛚 + 𝜶∙∆t (update angular vel. with angular acc.)
+
+	m_rotation *= real_pow(angularDamping, duration); //𝛚=𝛚∙𝒅𝒂𝒎𝒑𝒊𝒏𝒈 (Multiply damping)
+
+	m_orientation.addScaledVector(m_rotation, duration); //𝒒′=𝒒+𝟏/𝟐 𝒒(𝛚)∗𝒒 (Convert 𝛚 to a quaternion and multiply it
+
+	m_orientation.normalise();
+
+	m_transformMatrix.setOrientationAndPos(m_orientation, cyclone::Vector3(0, 0, 0));
 }
 
 
@@ -179,24 +193,24 @@ void Mover::drawMover()
 
 void Mover::getGLTransform(float matrix[16])
 {
-	matrix[0] = (float)transformMatrix.data[0];
-	matrix[1] = (float)transformMatrix.data[4];
-	matrix[2] = (float)transformMatrix.data[8];
+	matrix[0] = (float)m_transformMatrix.data[0];
+	matrix[1] = (float)m_transformMatrix.data[4];
+	matrix[2] = (float)m_transformMatrix.data[8];
 	matrix[3] = 0;
 
-	matrix[4] = (float)transformMatrix.data[1];
-	matrix[5] = (float)transformMatrix.data[5];
-	matrix[6] = (float)transformMatrix.data[9];
+	matrix[4] = (float)m_transformMatrix.data[1];
+	matrix[5] = (float)m_transformMatrix.data[5];
+	matrix[6] = (float)m_transformMatrix.data[9];
 	matrix[7] = 0;
 
-	matrix[8] = (float)transformMatrix.data[2];
-	matrix[9] = (float)transformMatrix.data[6];
-	matrix[10] = (float)transformMatrix.data[10];
+	matrix[8] = (float)m_transformMatrix.data[2];
+	matrix[9] = (float)m_transformMatrix.data[6];
+	matrix[10] = (float)m_transformMatrix.data[10];
 	matrix[11] = 0;
 
-	matrix[12] = (float)transformMatrix.data[3];
-	matrix[13] = (float)transformMatrix.data[7];
-	matrix[14] = (float)transformMatrix.data[11];
+	matrix[12] = (float)m_transformMatrix.data[3];
+	matrix[13] = (float)m_transformMatrix.data[7];
+	matrix[14] = (float)m_transformMatrix.data[11];
 	matrix[15] = 1;
 }
 

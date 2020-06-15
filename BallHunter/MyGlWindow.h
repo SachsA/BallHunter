@@ -94,6 +94,7 @@ public:
 
 	bool windBlowing;
 	bool isWaterDrawn = true;
+	bool isAnchorDrawn = true;
 
 	Viewer* m_viewer;
 

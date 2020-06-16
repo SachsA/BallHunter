@@ -323,7 +323,6 @@ void MyGlWindow::reset()
 
 	setupGround();
 	setupCollisions();
-	//m_container->reset();
 }
 
 void MyGlWindow::update()

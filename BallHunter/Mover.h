@@ -38,12 +38,6 @@ public:
 	~Mover() = default;
 
 
-	//==================== Core methods ====================//
-
-
-	void reset();
-
-
 	//==================== Transform methods ====================//
 
 
@@ -96,9 +90,6 @@ public:
 	cyclone::Vector3 m_position;
 	cyclone::Vector3 m_velocity;
 	cyclone::Vector3 m_rotation;
-
-	cyclone::Vector3 m_position_save;
-	cyclone::Vector3 m_velocity_save;
 
 	cyclone::Particle* m_particle;
 

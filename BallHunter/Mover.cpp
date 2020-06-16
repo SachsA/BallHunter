@@ -26,14 +26,12 @@ Mover::Mover(MoverType type,
 	m_shadow_color = shadow_color;
 	m_obj_color = obj_color;
 
-	m_position_save = m_position;
-	m_velocity_save = m_velocity;
-
 	m_particle = new cyclone::Particle();
 	m_particle->setMass(m_mass);
 	m_particle->setDamping(m_damping);
 
-	reset();
+	translate(m_position);
+	m_particle->setVelocity(m_velocity);
 }
 
 
@@ -53,16 +51,6 @@ void Mover::setupAnchoredConnection(cyclone::Vector3* anchored, double springCon
 void Mover::setupParticleBuoyancy(cyclone::real maxDepth, cyclone::real volume, cyclone::real waterHeight, cyclone::real liquidDensity)
 {
 	m_buoyancy = new cyclone::MyParticleBuoyancy(m_size, m_mass, maxDepth, volume, waterHeight, liquidDensity);
-}
-
-
-//==================== Core methods ====================//
-
-
-void Mover::reset()
-{
-	translate(m_position_save);
-	m_particle->setVelocity(m_velocity_save);
 }
 
 

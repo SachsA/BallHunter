@@ -22,7 +22,6 @@ public:
 	//==================== Core methods ====================//
 
 
-	void reset();
 	void update(float duration);
 	bool checkEdges(int i);
 

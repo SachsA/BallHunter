@@ -34,13 +34,6 @@ void MoversContainer::initForcesAnchored()
 //==================== Core methods ====================//
 
 
-void MoversContainer::reset()
-{
-	for (unsigned int i = 0; i < m_movers.size(); i++) {
-		m_movers[i]->reset();
-	}
-}
-
 void MoversContainer::update(float duration)
 {
 	for (unsigned int i = 0; i < m_movers.size(); i++) {

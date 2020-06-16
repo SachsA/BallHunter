@@ -1,22 +1,3 @@
-#include <windows.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-
-#include "stdio.h"
-#include "math.h"
-#include "3DUtils.h"
-#include "DrawUtils.h"
-#include "Particle.h"
-
-#include "Vec3f.h"
-#include "Viewer.h"
-#include <vector>
-
-#include "core.h"
-
-#include "pfgen.h"
-
 #include "Mover.h"
 
 class MoversContainer
@@ -42,14 +23,13 @@ public:
 
 
 	void reset();
+	void update(float duration);
+	bool checkEdges(int i);
 
 
 	//==================== Effect methods ====================//
 
 
-	void attachMoversToEachOther(float duration);
-	void attachMoversToAnchor(float duration);
-	void floating(float duration);
 	void windBlow();
 
 

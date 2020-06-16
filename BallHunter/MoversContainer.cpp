@@ -41,23 +41,32 @@ void MoversContainer::reset()
 	}
 }
 
+void MoversContainer::update(float duration)
+{
+	for (unsigned int i = 0; i < m_movers.size(); i++) {
+		if (!checkEdges(i)) {
+			m_movers[i]->attachToOtherMovers(duration);
+			m_movers[i]->attachToAnchor(duration);
+			m_movers[i]->floating(duration);
+		}
+	}
+}
+
+bool MoversContainer::checkEdges(int i)
+{
+	if (m_movers[i]->m_isPicked == false) {
+		if (m_movers[i]->m_position.z > 350 || m_movers[i]->m_position.z < -250) {
+			m_movers.erase(std::remove(m_movers.begin(), m_movers.end(), m_movers[i]), m_movers.end());
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 //==================== Effect methods ====================//
 
-
-void MoversContainer::attachMoversToEachOther(float duration)
-{
-	for (unsigned int i = 0; i < m_movers.size(); i++) {
-		m_movers[i]->attachToOtherMovers(duration);
-	}
-}
-
-void MoversContainer::attachMoversToAnchor(float duration)
-{
-	for (unsigned int i = 0; i < m_movers.size(); i++) {
-		m_movers[i]->attachToAnchor(duration);
-	}
-}
 
 void MoversContainer::windBlow()
 {
@@ -66,12 +75,6 @@ void MoversContainer::windBlow()
 	}
 }
 
-void MoversContainer::floating(float duration)
-{
-	for (unsigned int i = 0; i < m_movers.size(); i++) {
-		m_movers[i]->floating(duration);
-	}
-}
 
 //==================== Draw methods ====================//
 
@@ -117,7 +120,7 @@ void MoversContainer::drawSpringsToAnchor()
 			const cyclone::Vector3* anchoredPos = m_movers[i]->m_anchored->anchor;
 
 			glVertex3f(particlePos.x, particlePos.y, particlePos.z); //Starting point
-			glVertex3f(anchoredPos->z, anchoredPos->y, anchoredPos->z);  //Ending point
+			glVertex3f(anchoredPos->x, anchoredPos->y, anchoredPos->z);  //Ending point
 			glEnd();
 			glPopMatrix();
 		}

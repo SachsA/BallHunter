@@ -59,6 +59,12 @@ public:
 	//==================== Draw methods ====================//
 
 
+	void CheckBallDetachFromAnchor();
+
+
+	//==================== Draw methods ====================//
+
+
 	void draw();
 	void drawAxises();
 	void drawWall();
@@ -103,12 +109,13 @@ public:
 	std::vector<Vec3f*> history;
 
 	cyclone::Vector3 previousPoint;
-	cyclone::Vector3 *anchor = new cyclone::Vector3(0, 20, 0);
+	cyclone::Vector3 *anchor = new cyclone::Vector3(0, 50, 250);
 
 	cyclone::ParticleWorld* m_world;
 
 	cyclone::MyGroundContact* groundContact;
 
+	Mover* m_ball;
 	MoversContainer* m_container;
 
 	std::vector<cyclone::ParticleRod*> rods;

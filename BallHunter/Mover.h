@@ -81,7 +81,7 @@ public:
 	//==================== VARIABLES ====================//
 
 
-	int m_run;
+	bool m_isPicked = false;
 	int m_definition;
 
 	float m_size;

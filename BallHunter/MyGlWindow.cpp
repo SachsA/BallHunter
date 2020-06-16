@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include "MyGlWindow.h"
 #include "drawUtils.h"
@@ -27,7 +28,7 @@ After creating a mover:
 //==================== Camera constants ====================//
 
 
-static double DEFAULT_VIEW_POINT[3] = { 0, 30, 100 };
+static double DEFAULT_VIEW_POINT[3] = { -10, 330, 470 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
@@ -58,32 +59,18 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	TimingData::init();
 	run = 0;
 
-	m_world = new cyclone::ParticleWorld(1000);
-
-	m_container = new MoversContainer();
-
-	groundContact = new cyclone::MyGroundContact();
-
-	//Initialize movers and values of these displayed objects
-	createMovers();
-
-	setupGround();
-	setupCollisions();
+	reset();
 }
 
 void MyGlWindow::createMovers()
 {
-	//Mover's variables
-	Mover* m;
-
-	float size = 2;
+	float size = 5;
 	int definition = 30;
 
-	float mass = 5.0f;
-	float damping = 0.8f;
+	float mass = 7.0f;
+	float damping = 0.85f;
 
 	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
 	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
@@ -92,18 +79,28 @@ void MyGlWindow::createMovers()
 	Color obj_color = Color(1, 0, 0);
 
 	//Launched Ball attached to an anchor
-	position = cyclone::Vector3(0, 15, 10);
-	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	position = cyclone::Vector3(0, 15, 240);
+	m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m_container->m_movers.emplace_back(m_ball);
+
+	m_world->getParticles().emplace_back(m_ball->m_particle);
+	m_world->getForceRegistry().add(m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+
+	m_ball->setupAnchoredConnection(anchor, 5, 10);
+	m_container->initForcesAnchored();
+
+	//Cube
+	Mover* m;
+
+	position = cyclone::Vector3(20, 15, 200);
+	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m->m_particle);
 	m_world->getForceRegistry().add(m->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
 	m_world->getForceRegistry().add(m->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
-
 	m->setupParticleBuoyancy(0, 1, waterHeight, 2);
-
-	m->setupAnchoredConnection(anchor, 5, 5);
-	m_container->initForcesAnchored();
 }
 
 
@@ -309,7 +306,24 @@ void MyGlWindow::setupCableConstraints()
 
 void MyGlWindow::reset()
 {
-	m_container->reset();
+	TimingData::init();
+
+	m_world = new cyclone::ParticleWorld(1000);
+
+	m_container = new MoversContainer();
+
+	groundContact = new cyclone::MyGroundContact();
+
+	rods.clear();
+	cables.clear();
+	supports.clear();
+
+	//Initialize movers and values of these displayed objects
+	createMovers();
+
+	setupGround();
+	setupCollisions();
+	//m_container->reset();
 }
 
 void MyGlWindow::update()
@@ -322,14 +336,26 @@ void MyGlWindow::update()
 
 	if (duration <= 0.0f) return;
 
+	m_container->update(duration);
+
 	if (windBlowing == true)
 		m_container->windBlow();
 
-	m_container->floating(duration);
-	m_container->attachMoversToEachOther(duration);
-	m_container->attachMoversToAnchor(duration);
+	CheckBallDetachFromAnchor();
 
 	m_world->runPhysics(duration);
+}
+
+
+//==================== Ball Hunter Game methods ====================//
+
+
+void MyGlWindow::CheckBallDetachFromAnchor()
+{
+	if (m_ball->m_position.z < 230) {
+		m_ball->m_anchored = nullptr;
+		m_container->initForcesAnchored();
+	}
 }
 
 
@@ -354,7 +380,7 @@ void MyGlWindow::draw()
 	setupFloor();
 
 	glPushMatrix();
-	drawFloor(2000, 1);
+	drawFloor(600, 1);
 	glPopMatrix();
 
 	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
@@ -539,6 +565,13 @@ void MyGlWindow::doPick()
 		// one - see the OpenGL manual 
 		// remember: we load names that are one more than the index
 		selected = buf[3] - 1;
+		if (selected < m_container->m_movers.size() && std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[selected]) != m_container->m_movers.end()) {
+			if (m_container->m_movers[selected] == m_ball)
+				m_container->m_movers[selected]->m_isPicked = true;
+			else
+				selected = -1;
+		}
+
 	}
 	else {// nothing hit, nothing selected
 		selected = -1;
@@ -566,6 +599,9 @@ int MyGlWindow::handle(int e)
 	}
 	case FL_RELEASE:
 		if (selected >= 0) {
+			if (selected < m_container->m_movers.size() && std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[selected]) != m_container->m_movers.end()) {
+				m_container->m_movers[selected]->m_isPicked = false;
+			}
 			selected = -1;
 			previousPoint = cyclone::Vector3(0, 0, 0);
 		}
@@ -575,25 +611,27 @@ int MyGlWindow::handle(int e)
 	case FL_DRAG:
 	{
 		if (selected >= 0 && m_pressedMouseButton == 1) {
-			double r1x, r1y, r1z, r2x, r2y, r2z;
-			getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
+			if (selected < m_container->m_movers.size() && std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[selected]) != m_container->m_movers.end()) {
+				double r1x, r1y, r1z, r2x, r2y, r2z;
+				getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
 
-			double rx, ry, rz;
-			mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
-				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().x),
-				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().y),
-				static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().z),
-				rx, ry, rz,
-				(Fl::event_state() & FL_CTRL) != 0);
+				double rx, ry, rz;
+				mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
+					static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().x),
+					static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().y),
+					static_cast<double>(m_container->m_movers[selected]->m_particle->getPosition().z),
+					rx, ry, rz,
+					(Fl::event_state() & FL_CTRL) != 0);
 
-			cyclone::Vector3 v(rx, ry, rz);
-			if (previousPoint.magnitude() > 0) {
-				m_container->m_movers[selected]->m_particle->setVelocity((v - previousPoint) * 40);
+				cyclone::Vector3 v(rx, ry, rz);
+				if (previousPoint.magnitude() > 0) {
+					m_container->m_movers[selected]->m_particle->setVelocity((v - previousPoint) * 40);
+				}
+
+				previousPoint = v;
+
+				damage(1);
 			}
-
-			previousPoint = v;
-
-			damage(1);
 		}
 		else {
 			double fractionChangeX = static_cast<double>(Fl::event_x() - m_lastMouseX) / static_cast<double>(this->w());

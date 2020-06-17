@@ -47,8 +47,10 @@ void MoversContainer::update(float duration)
 
 bool MoversContainer::checkEdges(int i)
 {
-	if (m_movers[i]->m_isPicked == false) {
-		if (m_movers[i]->m_position.z > 350 || m_movers[i]->m_position.z < -250) {
+	if (m_movers[i] != m_ball && m_movers[i]->m_isPicked == false) {
+		if (m_movers[i]->m_position.x > 800 || m_movers[i]->m_position.x < -800 ||
+			m_movers[i]->m_position.z > 800 || m_movers[i]->m_position.z < -800 ||
+			m_movers[i]->m_position.y < 0) {
 			m_movers.erase(std::remove(m_movers.begin(), m_movers.end(), m_movers[i]), m_movers.end());
 			return true;
 		}

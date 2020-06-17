@@ -44,5 +44,7 @@ public:
 
 
 	cyclone::ParticleForceRegistry* m_forces;
+
+	Mover* m_ball;
 	std::vector<Mover*> m_movers;
 };

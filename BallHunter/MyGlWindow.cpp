@@ -28,7 +28,7 @@ After creating a mover:
 //==================== Camera constants ====================//
 
 
-static double DEFAULT_VIEW_POINT[3] = { -10, 330, 470 };
+static double DEFAULT_VIEW_POINT[3] = { 0, 250, 400 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
@@ -61,7 +61,44 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 	run = 0;
 
-	reset();
+	restart();
+}
+
+void MyGlWindow::createHuntingBall()
+{
+	if (std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_ball) != m_container->m_movers.end())
+	{
+		m_container->m_movers.erase(std::remove(m_container->m_movers.begin(),
+												m_container->m_movers.end(),
+												m_container->m_ball),
+									m_container->m_movers.end());
+	}
+
+	float size = 5;
+	int definition = 30;
+
+	float mass = 7.0f;
+	float damping = 0.85f;
+
+	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
+	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
+
+	Color shadow_color = Color(0.1, 0.1, 0.1);
+	Color obj_color = Color(1, 0, 0);
+
+	//Launched Ball attached to an anchor
+	position = cyclone::Vector3(0, 50, 5);
+	m_container->m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m_container->m_movers.emplace_back(m_container->m_ball);
+
+	m_world->getParticles().emplace_back(m_container->m_ball->m_particle);
+	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+
+	m_container->m_ball->setupParticleBuoyancy(0, 1, waterHeight, 2);
+
+	m_container->m_ball->setupAnchoredConnection(anchor, 5, 10);
+	m_container->initForcesAnchored();
 }
 
 void MyGlWindow::createMovers()
@@ -76,24 +113,12 @@ void MyGlWindow::createMovers()
 	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
 
 	Color shadow_color = Color(0.1, 0.1, 0.1);
-	Color obj_color = Color(1, 0, 0);
-
-	//Launched Ball attached to an anchor
-	position = cyclone::Vector3(0, 15, 240);
-	m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
-	m_container->m_movers.emplace_back(m_ball);
-
-	m_world->getParticles().emplace_back(m_ball->m_particle);
-	m_world->getForceRegistry().add(m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
-	m_world->getForceRegistry().add(m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
-
-	m_ball->setupAnchoredConnection(anchor, 5, 10);
-	m_container->initForcesAnchored();
+	Color obj_color = Color(1, 0.3, 1);
 
 	//Cube
 	Mover* m;
 
-	position = cyclone::Vector3(20, 15, 200);
+	position = cyclone::Vector3(20, 15, -200);
 	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
@@ -304,7 +329,7 @@ void MyGlWindow::setupCableConstraints()
 //==================== Core methods ====================//
 
 
-void MyGlWindow::reset()
+void MyGlWindow::restart()
 {
 	TimingData::init();
 
@@ -318,11 +343,8 @@ void MyGlWindow::reset()
 	cables.clear();
 	supports.clear();
 
-	//Initialize movers and values of these displayed objects
 	createMovers();
-
-	setupGround();
-	setupCollisions();
+	reload();
 }
 
 void MyGlWindow::update()
@@ -340,7 +362,7 @@ void MyGlWindow::update()
 	if (windBlowing == true)
 		m_container->windBlow();
 
-	CheckBallDetachFromAnchor();
+	checkBallDetachFromAnchor();
 
 	m_world->runPhysics(duration);
 }
@@ -349,10 +371,18 @@ void MyGlWindow::update()
 //==================== Ball Hunter Game methods ====================//
 
 
-void MyGlWindow::CheckBallDetachFromAnchor()
+void MyGlWindow::reload()
 {
-	if (m_ball->m_position.z < 230) {
-		m_ball->m_anchored = nullptr;
+	createHuntingBall();
+
+	setupGround();
+	setupCollisions();
+}
+
+void MyGlWindow::checkBallDetachFromAnchor()
+{
+	if (m_container->m_ball->m_position.z < -10) {
+		m_container->m_ball->m_anchored = nullptr;
 		m_container->initForcesAnchored();
 	}
 }
@@ -366,7 +396,7 @@ void MyGlWindow::draw()
 	glViewport(0, 0, w(), h());
 
 	// clear the window, be sure to clear the Z-Buffer too
-	glClearColor(0.1, 0.1, 0.1, 1);
+	glClearColor(0.30, 0.65, 1.00, 1);
 
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -379,7 +409,7 @@ void MyGlWindow::draw()
 	setupFloor();
 
 	glPushMatrix();
-	drawFloor(600, 1);
+	drawFloor(2000, 1);
 	glPopMatrix();
 
 	setupLight(m_viewer->getViewPoint().x, m_viewer->getViewPoint().y, m_viewer->getViewPoint().z);
@@ -405,7 +435,7 @@ void MyGlWindow::draw()
 		drawAnchor();
 
 	if (isWaterDrawn)
-		drawWaterTank(500, waterHeight, 500);
+		drawWaterTank(2000, waterHeight, 2000);
 }
 
 void MyGlWindow::drawAxises()
@@ -453,7 +483,7 @@ void MyGlWindow::drawMovers(int shadow)
 
 void MyGlWindow::drawAnchor()
 {
-	glColor3f(1, 0, 1);  //Line color
+	glColor3f(1, 1, 0);  //Line color
 	glLineWidth(3.0f);  //Line Width
 
 	glPushMatrix();
@@ -564,8 +594,8 @@ void MyGlWindow::doPick()
 		// one - see the OpenGL manual 
 		// remember: we load names that are one more than the index
 		selected = buf[3] - 1;
-		if (selected < m_container->m_movers.size() && std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[selected]) != m_container->m_movers.end()) {
-			if (m_container->m_movers[selected] == m_ball)
+		if (selected < m_container->m_movers.size()) {
+			if (m_container->m_movers[selected] == m_container->m_ball)
 				m_container->m_movers[selected]->m_isPicked = true;
 			else
 				selected = -1;
@@ -598,7 +628,7 @@ int MyGlWindow::handle(int e)
 	}
 	case FL_RELEASE:
 		if (selected >= 0) {
-			if (selected < m_container->m_movers.size() && std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[selected]) != m_container->m_movers.end()) {
+			if (selected < m_container->m_movers.size()) {
 				m_container->m_movers[selected]->m_isPicked = false;
 			}
 			selected = -1;
@@ -610,7 +640,7 @@ int MyGlWindow::handle(int e)
 	case FL_DRAG:
 	{
 		if (selected >= 0 && m_pressedMouseButton == 1) {
-			if (selected < m_container->m_movers.size() && std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[selected]) != m_container->m_movers.end()) {
+			if (selected < m_container->m_movers.size()) {
 				double r1x, r1y, r1z, r2x, r2y, r2z;
 				getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
 

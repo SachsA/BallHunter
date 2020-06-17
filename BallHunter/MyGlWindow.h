@@ -31,6 +31,7 @@ public:
 
 
 	MyGlWindow(int x, int y, int w, int h);
+	void createHuntingBall();
 	void createMovers();
 
 
@@ -53,13 +54,14 @@ public:
 
 
 	void update();
-	void reset();
+	void restart();
 
 
 	//==================== Draw methods ====================//
 
 
-	void CheckBallDetachFromAnchor();
+	void reload();
+	void checkBallDetachFromAnchor();
 
 
 	//==================== Draw methods ====================//
@@ -94,7 +96,7 @@ public:
 	int run;
 	int selected = -1;
 
-	int waterHeight = 10;
+	int waterHeight = 20;
 
 	float fieldOfView;
 
@@ -109,13 +111,12 @@ public:
 	std::vector<Vec3f*> history;
 
 	cyclone::Vector3 previousPoint;
-	cyclone::Vector3 *anchor = new cyclone::Vector3(0, 50, 250);
+	cyclone::Vector3 *anchor = new cyclone::Vector3(0, 100, 0);
 
 	cyclone::ParticleWorld* m_world;
 
 	cyclone::MyGroundContact* groundContact;
 
-	Mover* m_ball;
 	MoversContainer* m_container;
 
 	std::vector<cyclone::ParticleRod*> rods;

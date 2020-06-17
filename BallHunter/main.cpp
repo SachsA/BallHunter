@@ -64,22 +64,19 @@ void but_cb_play(Fl_Widget* o, void*data)
 	win->damage(1);
 }
 
-void but_cb_reset(Fl_Widget* o, void*data)
+void but_cb_reload(Fl_Widget* o, void* data)
 {
 	Fl_Button* b = (Fl_Button*)o;
-	MyGlWindow * win = (MyGlWindow *)data;
-	win->reset();
+	MyGlWindow* win = (MyGlWindow*)data;
+	win->reload();
 	win->damage(1);
 }
 
-void but_cb_windBlow(Fl_Widget* o, void*data)
+void but_cb_restart(Fl_Widget* o, void*data)
 {
 	Fl_Button* b = (Fl_Button*)o;
 	MyGlWindow * win = (MyGlWindow *)data;
-	if (b->value())
-		win->windBlowing = true;
-	else
-		win->windBlowing = false;
+	win->restart();
 	win->damage(1);
 }
 
@@ -114,14 +111,14 @@ int main()
 	choice->value(2);
 	choice->callback((Fl_Callback*)changeFrameCB, gl);
 
-	Fl_Light_Button * play = new Fl_Light_Button(width - 600, height - 40, 100, 20, "Play/Pause");
+	Fl_Light_Button * play = new Fl_Light_Button(width - 800, height - 40, 100, 20, "Play/Pause");
 	play->callback(but_cb_play, gl);
 
-	Fl_Button * reset = new Fl_Button(width - 400, height - 40, 100, 20, "Reset");
-	reset->callback(but_cb_reset, gl);
+	Fl_Button* restart = new Fl_Button(width - 600, height - 40, 100, 20, "Restart");
+	restart->callback(but_cb_restart, gl);
 
-	Fl_Light_Button * windBlow = new Fl_Light_Button(width - 200, height - 40, 100, 20, "Blow Wind");
-	windBlow->callback(but_cb_windBlow, gl);
+	Fl_Button* reload = new Fl_Button(width - 400, height - 40, 100, 20, "Reload Ball");
+	reload->callback(but_cb_reload, gl);
 
 	wind->end();
 

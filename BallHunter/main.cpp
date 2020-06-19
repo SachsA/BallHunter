@@ -28,7 +28,7 @@ int frameRate = 60;
 Fl_Group* widgets;
 
 
-//==================== Buttons ====================//
+//==================== Buttons methods ====================//
 
 
 void changeFrameCB(Fl_Widget * w, void* data)

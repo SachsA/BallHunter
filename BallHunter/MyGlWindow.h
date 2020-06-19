@@ -1,4 +1,3 @@
-
 #include <FL/Fl_Gl_Window.h>
 #include <Fl/Fl.h>
 #include <Fl/Fl_Value_Slider.H>
@@ -31,7 +30,6 @@ public:
 
 
 	MyGlWindow(int x, int y, int w, int h);
-	void createHuntingBall();
 	void createMovers();
 
 
@@ -57,9 +55,10 @@ public:
 	void restart();
 
 
-	//==================== Draw methods ====================//
+	//==================== Ball Hunter Game methods ====================//
 
 
+	void createHuntingBall();
 	void reload();
 	void checkBallDetachFromAnchor();
 
@@ -90,11 +89,21 @@ public:
 	int handle(int);
 
 
+	//==================== Text methods ====================//
+
+
+	void drawStrokeText(char const* string, int x, int y, int z);
+	void putText(char const* string, int x, int y, float r, float g, float b);
+
+
 	//==================== VARIABLES ====================//
 
 
 	int run;
 	int selected = -1;
+
+	float totalTimePrecise = 0;
+	int totalTimeSec = 0;
 
 	int waterHeight = 20;
 

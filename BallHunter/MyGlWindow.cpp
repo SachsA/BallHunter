@@ -64,43 +64,6 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	restart();
 }
 
-void MyGlWindow::createHuntingBall()
-{
-	if (std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_ball) != m_container->m_movers.end())
-	{
-		m_container->m_movers.erase(std::remove(m_container->m_movers.begin(),
-												m_container->m_movers.end(),
-												m_container->m_ball),
-									m_container->m_movers.end());
-	}
-
-	float size = 5;
-	int definition = 30;
-
-	float mass = 7.0f;
-	float damping = 0.85f;
-
-	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
-	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
-
-	Color shadow_color = Color(0.1, 0.1, 0.1);
-	Color obj_color = Color(1, 0, 0);
-
-	//Launched Ball attached to an anchor
-	position = cyclone::Vector3(0, 50, 5);
-	m_container->m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
-	m_container->m_movers.emplace_back(m_container->m_ball);
-
-	m_world->getParticles().emplace_back(m_container->m_ball->m_particle);
-	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
-	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
-
-	m_container->m_ball->setupParticleBuoyancy(0, 1, waterHeight, 2);
-
-	m_container->m_ball->setupAnchoredConnection(anchor, 5, 10);
-	m_container->initForcesAnchored();
-}
-
 void MyGlWindow::createMovers()
 {
 	float size = 5;
@@ -333,6 +296,9 @@ void MyGlWindow::restart()
 {
 	TimingData::init();
 
+	totalTimePrecise = 0;
+	totalTimeSec = 0;
+
 	m_world = new cyclone::ParticleWorld(1000);
 
 	m_container = new MoversContainer();
@@ -353,7 +319,15 @@ void MyGlWindow::update()
 
 	if (!run) return;
 
-	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
+	float lastFrameDuration = (float)TimingData::get().lastFrameDuration;
+
+	float duration = lastFrameDuration * 0.003;
+
+	totalTimePrecise += lastFrameDuration;
+	totalTimeSec = totalTimePrecise / 1000;
+
+	if (totalTimeSec > 60)
+		exit(0);
 
 	if (duration <= 0.0f) return;
 
@@ -370,6 +344,43 @@ void MyGlWindow::update()
 
 //==================== Ball Hunter Game methods ====================//
 
+
+void MyGlWindow::createHuntingBall()
+{
+	if (std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_ball) != m_container->m_movers.end())
+	{
+		m_container->m_movers.erase(std::remove(m_container->m_movers.begin(),
+			m_container->m_movers.end(),
+			m_container->m_ball),
+			m_container->m_movers.end());
+	}
+
+	float size = 5;
+	int definition = 30;
+
+	float mass = 7.0f;
+	float damping = 0.85f;
+
+	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
+	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
+
+	Color shadow_color = Color(0.1, 0.1, 0.1);
+	Color obj_color = Color(1, 0, 0);
+
+	//Launched Ball attached to an anchor
+	position = cyclone::Vector3(0, 50, 5);
+	m_container->m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m_container->m_movers.emplace_back(m_container->m_ball);
+
+	m_world->getParticles().emplace_back(m_container->m_ball->m_particle);
+	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+
+	m_container->m_ball->setupParticleBuoyancy(0, 1, waterHeight, 2);
+
+	m_container->m_ball->setupAnchoredConnection(anchor, 5, 10);
+	m_container->initForcesAnchored();
+}
 
 void MyGlWindow::reload()
 {
@@ -429,13 +440,16 @@ void MyGlWindow::draw()
 	drawMovers(0);
 	glPopMatrix();
 
-	glEnable(GL_COLOR_MATERIAL);
-
 	if (isAnchorDrawn)
 		drawAnchor();
 
 	if (isWaterDrawn)
 		drawWaterTank(2000, waterHeight, 2000);
+
+	std::string timerText = std::string("Time: ") + std::to_string(totalTimeSec);
+	putText(timerText.c_str(), w() / 2, h() * 0.95, 1, 0, 0);
+
+	glEnable(GL_COLOR_MATERIAL);
 }
 
 void MyGlWindow::drawAxises()
@@ -595,7 +609,8 @@ void MyGlWindow::doPick()
 		// remember: we load names that are one more than the index
 		selected = buf[3] - 1;
 		if (selected < m_container->m_movers.size()) {
-			if (m_container->m_movers[selected] == m_container->m_ball)
+			if (m_container->m_movers[selected] == m_container->m_ball &&
+				m_container->m_ball->m_anchored != nullptr)
 				m_container->m_movers[selected]->m_isPicked = true;
 			else
 				selected = -1;
@@ -712,4 +727,46 @@ void MyGlWindow::getMouseNDC(float& x, float& y)
 
 	x = (mx / wd) * 2.0f - 1.f;
 	y = (my / hd) * 2.0f - 1.f;
+}
+
+
+//==================== Text methods ====================//
+
+
+void MyGlWindow::drawStrokeText(char const* string, int x, int y, int z)
+{
+	char const* c;
+
+	glPushMatrix();
+	glTranslatef(x, y + 8, z);
+	glScalef(0.2, 0.2, 0.2);
+
+	for (c = string; *c != '\0'; c++)
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+
+	glPopMatrix();
+}
+
+void MyGlWindow::putText(char const* string, int x, int y, float r, float g, float b)
+{
+	glDisable(GL_LIGHTING);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	ortho();
+
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+
+	glColor3f(r, g, b);
+	drawStrokeText(string, x, y, 0);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+
+	glViewport(0, 0, w(), h());
+	setupProjection();
 }

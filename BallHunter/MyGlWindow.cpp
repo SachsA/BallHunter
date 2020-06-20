@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 
+#include "Random.h"
 #include "MyGlWindow.h"
 #include "drawUtils.h"
 #include "timing.h"
@@ -65,9 +66,15 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	restart();
 }
 
-void MyGlWindow::createMovers()
+void MyGlWindow::createHuntingBall()
 {
-	Mover* m;
+	if (std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_ball) != m_container->m_movers.end())
+	{
+		m_container->m_movers.erase(std::remove(m_container->m_movers.begin(),
+			m_container->m_movers.end(),
+			m_container->m_ball),
+			m_container->m_movers.end());
+	}
 
 	float size = 5;
 	int definition = 30;
@@ -79,11 +86,43 @@ void MyGlWindow::createMovers()
 	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
 
 	Color shadow_color = Color(0.1, 0.1, 0.1);
-	Color obj_color = Color(1, 0.3, 1);
+	Color obj_color = Color(1, 0, 0);
 
-	//First Cube
-	position = cyclone::Vector3(20, 15, -200);
-	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	//Launched Ball attached to an anchor
+	position = cyclone::Vector3(0, 50, 5);
+	m_container->m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m_container->m_movers.emplace_back(m_container->m_ball);
+
+	m_world->getParticles().emplace_back(m_container->m_ball->m_particle);
+	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
+	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
+
+	m_container->m_ball->setupParticleBuoyancy(0, 1, waterHeight, 2);
+
+	m_container->m_ball->setupAnchoredConnection(anchor, 5, 10);
+	m_container->initForcesAnchored();
+}
+
+void MyGlWindow::createMover()
+{
+	Mover* m;
+	static cyclone::Random crandom;
+
+	float size = crandom.randomReal(3.0f, 20.0f);
+	int definition = 30;
+
+	float mass = crandom.randomReal(5.0f, 10.0f);
+	float damping = crandom.randomReal(0.5f, 1.0f);
+
+	cyclone::Vector3 position = crandom.randomVector(cyclone::Vector3(-250, 10, -50), cyclone::Vector3(250, 10, -300));
+	cyclone::Vector3 velocity = crandom.randomVector(cyclone::Vector3(-30, 0, 0), cyclone::Vector3(30, 100, -30));
+
+	cyclone::Vector3 color = crandom.randomVector(cyclone::Vector3(0, 0, 0), cyclone::Vector3(1, 1, 1));
+	Color obj_color = Color(color.x, color.y, color.z);
+	Color shadow_color = Color(0.1, 0.1, 0.1);
+
+	//First Sphere
+	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m->m_particle);
@@ -161,6 +200,8 @@ void MyGlWindow::setupProjection(int clearProjection)
 
 void MyGlWindow::setupGround()
 {
+	cyclone::MyGroundContact* groundContact = new cyclone::MyGroundContact();
+
 	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
 		groundContact->init(m_container->m_movers[i]->m_particle, m_container->m_movers[i]->m_size);
@@ -309,13 +350,11 @@ void MyGlWindow::restart()
 
 	m_container = new MoversContainer();
 
-	groundContact = new cyclone::MyGroundContact();
-
 	rods.clear();
 	cables.clear();
 	supports.clear();
 
-	createMovers();
+	createMover();
 	reload();
 }
 
@@ -354,43 +393,6 @@ void MyGlWindow::update()
 //==================== Ball Hunter Game methods ====================//
 
 
-void MyGlWindow::createHuntingBall()
-{
-	if (std::find(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_ball) != m_container->m_movers.end())
-	{
-		m_container->m_movers.erase(std::remove(m_container->m_movers.begin(),
-			m_container->m_movers.end(),
-			m_container->m_ball),
-			m_container->m_movers.end());
-	}
-
-	float size = 5;
-	int definition = 30;
-
-	float mass = 7.0f;
-	float damping = 0.85f;
-
-	cyclone::Vector3 position = cyclone::Vector3(0, 0, 0);
-	cyclone::Vector3 velocity = cyclone::Vector3(0, 0, 0);
-
-	Color shadow_color = Color(0.1, 0.1, 0.1);
-	Color obj_color = Color(1, 0, 0);
-
-	//Launched Ball attached to an anchor
-	position = cyclone::Vector3(0, 50, 5);
-	m_container->m_ball = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
-	m_container->m_movers.emplace_back(m_container->m_ball);
-
-	m_world->getParticles().emplace_back(m_container->m_ball->m_particle);
-	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleGravity(cyclone::Vector3::GRAVITY));
-	m_world->getForceRegistry().add(m_container->m_ball->m_particle, new cyclone::ParticleDrag(0.1, 0.01));
-
-	m_container->m_ball->setupParticleBuoyancy(0, 1, waterHeight, 2);
-
-	m_container->m_ball->setupAnchoredConnection(anchor, 5, 10);
-	m_container->initForcesAnchored();
-}
-
 void MyGlWindow::reload()
 {
 	createHuntingBall();
@@ -413,11 +415,13 @@ void MyGlWindow::checkMoverIsHit()
 	{
 		if (m_container->m_ball != m_container->m_movers[i]) {
 			float size = m_container->m_ball->m_size + m_container->m_movers[i]->m_size;
-			if (size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude()
-				&& m_container->m_movers[i]->m_isHit == false)
+			if (size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude())
 			{
 				score += 10;
-				m_container->m_movers[i]->m_isHit = true;
+				m_container->m_movers.erase(std::remove(m_container->m_movers.begin(), m_container->m_movers.end(), m_container->m_movers[i]), m_container->m_movers.end());
+				for (size_t i = 0; i < (score / 10) + 1; i++)
+					createMover();
+				reload();
 			}
 		}
 	}

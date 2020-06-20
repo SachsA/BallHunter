@@ -78,7 +78,6 @@ public:
 	int m_definition;
 
 	bool m_isPicked = false;
-	bool m_isHit = false;
 
 	float m_size;
 	float m_mass;

@@ -30,7 +30,8 @@ public:
 
 
 	MyGlWindow(int x, int y, int w, int h);
-	void createMovers();
+	void createHuntingBall();
+	void createMover();
 
 
 	//==================== Setup methods ====================//
@@ -58,7 +59,6 @@ public:
 	//==================== Ball Hunter Game methods ====================//
 
 
-	void createHuntingBall();
 	void reload();
 	void checkBallDetachFromAnchor();
 	void checkMoverIsHit();
@@ -129,8 +129,6 @@ public:
 	cyclone::Vector3 *anchor = new cyclone::Vector3(0, 100, 0);
 
 	cyclone::ParticleWorld* m_world;
-
-	cyclone::MyGroundContact* groundContact;
 
 	MoversContainer* m_container;
 

@@ -301,6 +301,9 @@ void MyGlWindow::restart()
 	totalTimePrecise = 0;
 	totalTimeSec = 0;
 
+	score = 0;
+	bestScore = 0;
+
 	m_world = new cyclone::ParticleWorld(1000);
 
 	m_container = new MoversContainer();
@@ -451,6 +454,12 @@ void MyGlWindow::draw()
 
 	std::string timerText = std::string("Time: ") + std::to_string(totalTimeSec);
 	putText(timerText.c_str(), w() / 2, h() * 0.95, 1, 0, 0);
+
+	std::string scoreText = std::string("Score: ") + std::to_string(score);
+	putText(scoreText.c_str(), 10, h() * 0.95, 1, 1, 0);
+
+	std::string bestScoreText = std::string("Best Score: ") + std::to_string(bestScore);
+	putText(bestScoreText.c_str(), 10, h() * 0.85, 1, 0, 1);
 
 	glEnable(GL_COLOR_MATERIAL);
 }

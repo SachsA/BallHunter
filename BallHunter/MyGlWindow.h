@@ -105,6 +105,9 @@ public:
 	float totalTimePrecise;
 	int totalTimeSec;
 
+	int score;
+	int bestScore;
+
 	int waterHeight = 20;
 
 	float fieldOfView;

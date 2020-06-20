@@ -61,6 +61,7 @@ public:
 	void createHuntingBall();
 	void reload();
 	void checkBallDetachFromAnchor();
+	void checkMoverIsHit();
 
 
 	//==================== Draw methods ====================//

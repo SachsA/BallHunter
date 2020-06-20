@@ -343,6 +343,7 @@ void MyGlWindow::update()
 		m_container->windBlow();
 
 	checkBallDetachFromAnchor();
+	checkMoverIsHit();
 
 	m_world->runPhysics(duration);
 }
@@ -401,6 +402,21 @@ void MyGlWindow::checkBallDetachFromAnchor()
 	if (m_container->m_ball->m_position.z < -10) {
 		m_container->m_ball->m_anchored = nullptr;
 		m_container->initForcesAnchored();
+	}
+}
+
+void MyGlWindow::checkMoverIsHit()
+{
+	for (size_t i = 0; i < m_container->m_movers.size(); i++)
+	{
+		if (m_container->m_ball != m_container->m_movers[i]) {
+			if (m_container->m_ball->m_size + m_container->m_movers[i]->m_size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude()
+				&& m_container->m_movers[i]->m_isHit == false)
+			{
+				score += 10;
+				m_container->m_movers[i]->m_isHit = true;
+			}
+		}
 	}
 }
 

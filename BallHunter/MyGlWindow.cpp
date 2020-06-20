@@ -67,6 +67,8 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 void MyGlWindow::createMovers()
 {
+	Mover* m;
+
 	float size = 5;
 	int definition = 30;
 
@@ -79,9 +81,7 @@ void MyGlWindow::createMovers()
 	Color shadow_color = Color(0.1, 0.1, 0.1);
 	Color obj_color = Color(1, 0.3, 1);
 
-	//Cube
-	Mover* m;
-
+	//First Cube
 	position = cyclone::Vector3(20, 15, -200);
 	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
@@ -412,7 +412,8 @@ void MyGlWindow::checkMoverIsHit()
 	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
 		if (m_container->m_ball != m_container->m_movers[i]) {
-			if (m_container->m_ball->m_size + m_container->m_movers[i]->m_size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude() + 1
+			float size = m_container->m_ball->m_size + m_container->m_movers[i]->m_size;
+			if (size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude()
 				&& m_container->m_movers[i]->m_isHit == false)
 			{
 				score += 10;
@@ -424,6 +425,9 @@ void MyGlWindow::checkMoverIsHit()
 
 void MyGlWindow::writeBestScoreInFile()
 {
+	if (score < bestScore)
+		return;
+
 	std::fstream file;
 	
 	file.open("../HighScores/HighScore.txt", std::ios_base::out | std::ios_base::in);
@@ -433,7 +437,7 @@ void MyGlWindow::writeBestScoreInFile()
 		file.open("../HighScores/HighScore.txt", std::ios_base::out);
 	}
 
-	file << bestScore;
+	file << score;
 	file.close();
 }
 

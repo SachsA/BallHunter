@@ -63,6 +63,8 @@ public:
 	void checkBallDetachFromAnchor();
 	void checkMoverIsHit();
 
+	void writeBestScoreInFile();
+	void readBestScoreInFile();
 
 	//==================== Draw methods ====================//
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 
 #include "MyGlWindow.h"
@@ -82,7 +83,7 @@ void MyGlWindow::createMovers()
 	Mover* m;
 
 	position = cyclone::Vector3(20, 15, -200);
-	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m->m_particle);
@@ -302,7 +303,7 @@ void MyGlWindow::restart()
 	totalTimeSec = 0;
 
 	score = 0;
-	bestScore = 0;
+	readBestScoreInFile();
 
 	m_world = new cyclone::ParticleWorld(1000);
 
@@ -331,7 +332,8 @@ void MyGlWindow::update()
 	totalTimePrecise += lastFrameDuration;
 	totalTimeSec = totalTimePrecise / 1000;
 
-	if (totalTimeSec >= 60) {
+	if (totalTimeSec > 60) {
+		writeBestScoreInFile();
 		restart();
 	}
 
@@ -410,7 +412,7 @@ void MyGlWindow::checkMoverIsHit()
 	for (size_t i = 0; i < m_container->m_movers.size(); i++)
 	{
 		if (m_container->m_ball != m_container->m_movers[i]) {
-			if (m_container->m_ball->m_size + m_container->m_movers[i]->m_size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude()
+			if (m_container->m_ball->m_size + m_container->m_movers[i]->m_size >= (m_container->m_ball->m_position - m_container->m_movers[i]->m_position).magnitude() + 1
 				&& m_container->m_movers[i]->m_isHit == false)
 			{
 				score += 10;
@@ -418,6 +420,36 @@ void MyGlWindow::checkMoverIsHit()
 			}
 		}
 	}
+}
+
+void MyGlWindow::writeBestScoreInFile()
+{
+	std::fstream file;
+	
+	file.open("../HighScores/HighScore.txt", std::ios_base::out | std::ios_base::in);
+	if (!file.is_open())
+	{
+		file.clear();
+		file.open("../HighScores/HighScore.txt", std::ios_base::out);
+	}
+
+	file << bestScore;
+	file.close();
+}
+
+void MyGlWindow::readBestScoreInFile()
+{
+	std::string line;
+	std::ifstream file("../HighScores/HighScore.txt");
+	
+	if (file.is_open())
+	{
+		getline(file, line);
+		bestScore = atoi(line.c_str());
+		file.close();
+	}
+	else
+		bestScore = 0;
 }
 
 

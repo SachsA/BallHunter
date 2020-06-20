@@ -135,7 +135,7 @@ void Mover::floating(float duration)
 
 void Mover::windBlow()
 {
-	cyclone::Vector3 wind(1.0f, 0, 0);
+	cyclone::Vector3 wind(10.0f, 0, 0);
 	m_particle->addForce(wind);
 }
 

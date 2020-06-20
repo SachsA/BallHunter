@@ -115,7 +115,7 @@ public:
 
 	float fieldOfView;
 
-	bool windBlowing;
+	bool windBlowing = false;
 	bool isWaterDrawn = true;
 	bool isAnchorDrawn = true;
 

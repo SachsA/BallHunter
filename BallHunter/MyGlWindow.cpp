@@ -340,6 +340,8 @@ void MyGlWindow::restart()
 
 	TimingData::init();
 
+	windBlowing = false;
+
 	totalTimePrecise = 0;
 	totalTimeSec = 0;
 
@@ -375,6 +377,9 @@ void MyGlWindow::update()
 		writeBestScoreInFile();
 		restart();
 	}
+
+	if (totalTimeSec == 40)
+		windBlowing = true;
 
 	if (duration <= 0.0f) return;
 
@@ -508,14 +513,19 @@ void MyGlWindow::draw()
 	if (isWaterDrawn)
 		drawWaterTank(2000, waterHeight, 2000);
 
-	std::string timerText = std::string("Time: ") + std::to_string(totalTimeSec);
-	putText(timerText.c_str(), w() / 2, h() * 0.95, 1, 0, 0);
+	std::string timerText = std::string("Time: ") + std::to_string(totalTimeSec) + std::string("/60");
+	putText(timerText.c_str(), w() / 2 - 70, h() * 0.95, 1, 0, 0);
 
 	std::string scoreText = std::string("Score: ") + std::to_string(score);
 	putText(scoreText.c_str(), 10, h() * 0.95, 1, 1, 0);
 
 	std::string bestScoreText = std::string("Best Score: ") + std::to_string(bestScore);
 	putText(bestScoreText.c_str(), 10, h() * 0.85, 1, 0, 1);
+
+	if (windBlowing == true) {
+		std::string windBlowingText = std::string("CARE: WIND IS NOW BLOWING !");
+		putText(windBlowingText.c_str(), w() / 2 - 180, 10, 1, 0, 0);
+	}
 
 	glEnable(GL_COLOR_MATERIAL);
 }

@@ -100,10 +100,10 @@ public:
 
 
 	int run;
-	int selected = -1;
+	int selected;
 
-	float totalTimePrecise = 0;
-	int totalTimeSec = 0;
+	float totalTimePrecise;
+	int totalTimeSec;
 
 	int waterHeight = 20;
 

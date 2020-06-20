@@ -294,6 +294,8 @@ void MyGlWindow::setupCableConstraints()
 
 void MyGlWindow::restart()
 {
+	selected = -1;
+
 	TimingData::init();
 
 	totalTimePrecise = 0;
@@ -326,8 +328,9 @@ void MyGlWindow::update()
 	totalTimePrecise += lastFrameDuration;
 	totalTimeSec = totalTimePrecise / 1000;
 
-	if (totalTimeSec > 60)
-		exit(0);
+	if (totalTimeSec >= 60) {
+		restart();
+	}
 
 	if (duration <= 0.0f) return;
 

@@ -83,7 +83,7 @@ void MyGlWindow::createMovers()
 
 	//First Cube
 	position = cyclone::Vector3(20, 15, -200);
-	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
+	m = new Mover(Cube, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
 	m_world->getParticles().emplace_back(m->m_particle);

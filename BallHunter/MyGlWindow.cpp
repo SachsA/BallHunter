@@ -121,7 +121,6 @@ void MyGlWindow::createMover()
 	Color obj_color = Color(color.x, color.y, color.z);
 	Color shadow_color = Color(0.1, 0.1, 0.1);
 
-	//First Sphere
 	m = new Mover(Sphere, size, definition, mass, damping, position, velocity, shadow_color, obj_color);
 	m_container->m_movers.emplace_back(m);
 
@@ -438,7 +437,7 @@ void MyGlWindow::writeBestScoreInFile()
 		return;
 
 	std::fstream file;
-	
+
 	file.open("../HighScores/HighScore.txt", std::ios_base::out | std::ios_base::in);
 	if (!file.is_open())
 	{
@@ -454,7 +453,7 @@ void MyGlWindow::readBestScoreInFile()
 {
 	std::string line;
 	std::ifstream file("../HighScores/HighScore.txt");
-	
+
 	if (file.is_open())
 	{
 		getline(file, line);

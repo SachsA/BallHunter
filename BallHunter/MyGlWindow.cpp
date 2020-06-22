@@ -214,7 +214,9 @@ void MyGlWindow::setupCollisions()
 	for (size_t first = 0; first < m_container->m_movers.size(); first++)
 	{
 		for (size_t second = 0; second < m_container->m_movers.size(); second++) {
-			if (first == second)
+			if (first == second ||
+				m_container->m_movers[first] == m_container->m_ball ||
+				m_container->m_movers[second] == m_container->m_ball)
 				continue;
 
 			double collisionSize = (m_container->m_movers[first]->m_size + m_container->m_movers[second]->m_size) / 2;
